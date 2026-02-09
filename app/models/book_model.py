@@ -55,7 +55,7 @@ class Book():
 					author_id = cursor.fetchone()
 											
 					#Obtener nombre y apellido del autor
-					cursor.execute("SeLECT first_name, last_name FROM author WHERE author_id = ?;", (author_id[0],))
+					cursor.execute("SELECT first_name, last_name FROM author WHERE author_id = ?;", (author_id[0],))
 					
 					author_name = cursor.fetchall()
 											
@@ -309,5 +309,70 @@ class Book():
 			print(f"\n--- ERROR DE SQLITE EN UPDATE_BOOK: {e} ---")	
 			return False, f"\n--- ERROR DE SQLITE EN UPDATE_BOOK: {e} ---"	
 
-	
-				 
+	def get_all_books():
+
+		"""
+		Devuelve todos los libros registrado en la base de datos.
+		No recibe parámetros.
+		"""
+
+		try:
+			with db.get_db_connection() as connection: 
+				
+				cursor = connection.cursor()
+
+				cursor.execute("SELECT book_id, isbn, title, publisher, genre_id, user_id, status FROM book")
+
+				rows = cursor.fetchall()
+
+				rows_complete = []
+
+				if rows is not None:
+					
+					for row in rows:
+
+						row = list(row)
+
+						#Extraer ID del género del libro
+						cursor.execute("SELECT genre_id FROM book WHERE book_id = ?;", (row[0], ))
+					
+						genre_id = cursor.fetchone()
+
+						#Obtener nombre del género 
+						cursor.execute("SELECT name FROM genre WHERE genre_id = ?;", (genre_id[0],))
+					
+						genre_name = cursor.fetchone()
+
+						row[4] = genre_name[0]
+
+						rows_complete.append(row)
+
+						#Obtener ID del autor
+						cursor.execute("SELECT author_id FROM book_author WHERE book_id = ?;", (row[0],))
+					
+						author_id = cursor.fetchone()
+											
+						#Obtener nombre y apellido del autor
+						cursor.execute("SELECT first_name, last_name FROM author WHERE author_id = ?;", (author_id[0],))
+					
+						author_name = cursor.fetchall()
+
+						author = author_name[0]
+						
+						print(author)
+
+						author_complete = ""
+
+						for i in author: 
+							author_complete = f"{author[0]} {author[1]}" 
+
+						row.append(author_complete)
+
+						rows_complete.append(row)
+
+						print(rows_complete)
+
+				return True, rows
+			
+		except sqlite3.Error as e:
+				return False, str(e)

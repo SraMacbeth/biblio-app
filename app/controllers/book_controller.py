@@ -167,3 +167,25 @@ def update_book(book_id, title, authors, genre, isbn, publisher, copies, status,
 			final_message += header + formatted_list
 		
 		return {"estado": "ok", "mensaje": final_message}
+	
+def get_all_inventory():
+	
+	"""
+	Devuelve una lista con todos los libros del inventario.
+	No recibe parámetros
+	"""
+	success, data = Book.get_all_books()
+
+	if success == False:
+		return {"estado": "error"}
+	else:
+		list_book = []
+		for i in data:
+			i = list(i)
+			list_book.append(i)
+
+		return {"estado": "ok", "inventario": list_book}
+
+
+	
+	
