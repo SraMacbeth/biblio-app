@@ -24,11 +24,8 @@ class BooksView(BaseView):
 		self.action_button_container.grid(row=1, column=1, sticky="s", padx=5)
 		self.action_button_container.grid_remove()
 		
-		self.edit_button = Button(self.action_button_container, text="✎", font=(None, 15, "bold"), fg="green", command=self.open_edit_book_form, state=DISABLED)
-		self.edit_button.grid(row=0, column=0, padx=5)
-		
-		self.delete_button = Button(self.action_button_container, text="X", font=(None, 15, "bold"), fg="red", command=self.delete_book, state=DISABLED)
-		self.delete_button.grid(row=0, column=1, padx=5)
+		self.edit_button = Button(self.action_button_container, text="✎", font=(None, 20, "bold"), fg="green", padx=5, pady=5,  command=self.open_edit_book_form, state=DISABLED)
+		self.edit_button.grid(row=0, column=0, padx=5, pady=5)
 		
 		self.new_book_button = Button(self.main_area, text="Agregar nuevo libro", command = self.open_new_book_form)
 		self.new_book_button.grid(row=3, column=0, columnspan=4, pady=10)
@@ -54,8 +51,6 @@ class BooksView(BaseView):
 		
 		self.action_button_container.grid_remove()
 		self.edit_button.config(state=DISABLED)
-		self.delete_button.config(state=DISABLED)
-
 		
 		if result["estado"] == "ok":
 
@@ -83,7 +78,6 @@ class BooksView(BaseView):
 			
 			self.action_button_container.grid()
 			self.edit_button.config(state=NORMAL)
-			self.delete_button.config(state=NORMAL)
 		
 			#self.clean_entries(self.search_bar.search_bar_entry)
 		else:
@@ -91,13 +85,6 @@ class BooksView(BaseView):
 			self.search_result_container.result_label.config(text=result["mensaje"], font=(None, 10, "bold"), fg="red", anchor="w")
 			self.search_result_container.result_label.grid(row=1, column=0, pady=10, sticky="ew")
 		
-	def delete_book(self):
-		"""
-		Función de marcador para la eliminación.
-		TODO: Implementar la lógica de eliminación. 
-		"""
-		print("Funcionalidad de eliminación pendiente.")
-
 	def open_new_book_form(self):
 		
 		new_book_form = BookForm("Agregar nuevo libro", parent=self, controller=self, type_form="new_book_form")
