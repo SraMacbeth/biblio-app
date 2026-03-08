@@ -1,43 +1,32 @@
 # BiblioApp: Sistema de Gestión de Biblioteca
 
-*Aplicación de escritorio para la gestión de bibliotecas públicas.* 
+BiblioApp es una aplicación de escritorio robusta diseñada para la digitalización y administración de bibliotecas públicas. Permite un control integral sobre el inventario de libros, el registro de socios y el flujo de préstamos, garantizando una experiencia de usuario intuitiva y eficiente.
 
-*Incluye gestión de usuarios administradores del sistema (registro, login y reseteo de contraseña), gestión de libros (ingreso de libros, consulta de ficha, edición de datos y eliminación de registros), alta y baja de socios y gestión de préstamos y devoluciones.*
+---
 
-# Características
-* Base de datos con SQLite
-* Interfaz gráfica con Tkinter
-* Arquitectura MVC
+## 🚀 Características Principales
 
-# Tecnologías utilizadas
-* Python 3.8
-* Tkinter
-* SQLite3
+* **Control de Acceso:** Sistema de autenticación seguro para administradores (Registro, Login y recuperación de credenciales).
+* **Gestión de Inventario:** CRUD completo de libros (Alta, consulta detallada, edición y bajas).
+* **Administración de Socios:** Gestión eficiente del padrón de usuarios de la biblioteca.
+* **Módulo de Circulación:** Control automatizado de préstamos y devoluciones en tiempo real.
+* **Persistencia de Datos:** Implementación con SQLite para un manejo de datos ligero y fiable.
 
-# Instalación
-1. Cloná el repositorio
-2. Creá el entorno virtual
-3. Instalá las dependencias
+## 🛠️ Tecnologías Utilizadas
 
-# Uso
-* Ejecutá la app con:
-python3 main.py
+* **Lenguaje:** Python 3.8+
+* **Interfaz Gráfica:** Tkinter
+* **Base de Datos:** SQLite3
+* **Arquitectura:** Pattern Model-View-Controller (MVC) para un código escalable y mantenible.
 
-# Estructura del proyecto
-/components
-/controllers
-/db
-/images
-/models
-/venv
-/views
-main.py
-README.md
-requirements.txt
+## 📂 Estructura del Proyecto
 
-# Autor
-Emilia Poletti
-
-* NOTA:
-*"Este proyecto se encuentra en fase de MVP. Puedes consultar la hoja de ruta de futuras mejoras en el archivo TODO.md".*
-
+```text
+├── components/          # Elementos reutilizables de la UI
+├── controllers/         # Lógica de negocio y manejo de eventos
+├── db/                  # Scripts de base de datos y esquemas
+├── images/              # Recursos visuales del sistema
+├── models/              # Definición de clases y acceso a datos
+├── views/               # Definición de las interfaces de usuario
+├── main.py              # Punto de entrada de la aplicación
+└── requirements.txt     # Dependencias del proyecto
