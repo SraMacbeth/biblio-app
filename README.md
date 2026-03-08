@@ -38,8 +38,10 @@ Sigue estos pasos para configurar el entorno local:
 
 2. **Crear y activar el entorno virtual:**
    python -m venv venv
-   # En Windows: venv\Scripts\activate
-   # En macOS/Linux: source venv/bin/activate
+   
+   En Windows: venv\Scripts\activate
+   
+   En macOS/Linux: source venv/bin/activate
 
 3. **Instalar dependencias:**
    pip install -r requirements.txt
@@ -57,5 +59,3 @@ python3 main.py
 
 ## 👩‍💻 Autor
 **Emilia Poletti**
-
-¿Te gustaría que te ayude a redactar los puntos del archivo TODO.md para mostrar qué mejoras tienes planeadas?
