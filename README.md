@@ -1,4 +1,4 @@
-Aquí ti# BiblioApp: Sistema de Gestión de Biblioteca
+# BiblioApp: Sistema de Gestión de Biblioteca
 
 BiblioApp es una aplicación de escritorio robusta diseñada para la digitalización y administración de bibliotecas públicas. Permite un control integral sobre el inventario de libros, el registro de socios y el flujo de préstamos, garantizando una experiencia de usuario intuitiva y eficiente.
 
