@@ -36,7 +36,7 @@ BiblioApp es una aplicación de escritorio diseñada para la administración int
 Sigue estos pasos para configurar el entorno local:
 
 1. **Clonar el repositorio:**
-   git clone https://github.com/tu-usuario/biblioapp.git
+   git clone https://github.com/SraMacbeth/biblioapp.git
 
 2. **Crear y activar el entorno virtual:**
    python -m venv venv
