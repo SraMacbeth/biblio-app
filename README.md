@@ -29,7 +29,7 @@ BiblioApp es una aplicación de escritorio diseñada para la administración int
 ├── views/               # Interfaces de usuario y layouts
 ├── main.py              # Punto de entrada de la aplicación
 └── requirements.txt     # Listado de dependencias
-```text
+```
 
 ## ⚙️ Instalación
 
