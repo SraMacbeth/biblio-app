@@ -20,14 +20,15 @@ BiblioApp es una aplicación de escritorio diseñada para la administración int
 
 ## 📁 Estructura del Proyecto
 
-/components          # Widgets y componentes de UI reutilizables
-/controllers         # Lógica de control y comunicación MVC
-/db                  # Scripts y archivos de base de datos
-/images              # Recursos gráficos y assets
-/models              # Definición de clases y acceso a datos
-/views               # Interfaces de usuario y layouts
-main.py              # Punto de entrada de la aplicación
-requirements.txt     # Listado de dependencias
+```text
+├── components/          # Widgets y componentes de UI reutilizables
+├── controllers/         # Lógica de control y comunicación MVC
+├── db/                  # Scripts y archivos de base de datos
+├── images/              # Recursos gráficos y assets
+├── models/              # Definición de clases y acceso a datos
+├── views/               # Interfaces de usuario y layouts
+├── main.py              # Punto de entrada de la aplicación
+└── requirements.txt     # Listado de dependencias
 
 ## ⚙️ Instalación
 
