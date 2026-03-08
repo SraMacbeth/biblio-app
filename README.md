@@ -1,8 +1,6 @@
-# BiblioApp: Sistema de Gestión de Biblioteca
+Aquí ti# BiblioApp: Sistema de Gestión de Biblioteca
 
 BiblioApp es una aplicación de escritorio robusta diseñada para la digitalización y administración de bibliotecas públicas. Permite un control integral sobre el inventario de libros, el registro de socios y el flujo de préstamos, garantizando una experiencia de usuario intuitiva y eficiente.
-
----
 
 ## 🚀 Características Principales
 
@@ -30,3 +28,28 @@ BiblioApp es una aplicación de escritorio robusta diseñada para la digitalizac
 ├── views/               # Definición de las interfaces de usuario
 ├── main.py              # Punto de entrada de la aplicación
 └── requirements.txt     # Dependencias del proyecto
+
+⚙️ Instalación y Configuración
+Sigue estos pasos para ejecutar el proyecto de forma local:
+ * Clonar el repositorio:
+   git clone [https://github.com/SraMacbeth/biblioapp.git](https://github.com/SraMacbeth/biblioapp.git)
+cd biblioapp
+
+ * Configurar el entorno virtual:
+   python -m venv venv
+source venv/bin/activate  # En Windows: venv\Scripts\activate
+
+ * Instalar dependencias:
+   pip install -r requirements.txt
+
+🖥️ Uso
+Para iniciar la aplicación, ejecuta el script principal desde la raíz del proyecto:
+python main.py
+
+📌 Estado del Proyecto
+Actualmente el proyecto se encuentra en fase MVP (Producto Mínimo Viable).
+> Puedes consultar la hoja de ruta de futuras mejoras y funcionalidades planificadas en el archivo TODO.md.
+> 
+👩‍💻 Autora
+Emilia Poletti - Desarrolladora del proyecto
+
