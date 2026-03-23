@@ -11,8 +11,12 @@
 * [X] **Gestión de Ciclo de Vida:** Implementar reactivación de libros (Inactivo -> Activo) y sincronización de copias en update_book.
 
 * [X] **Vista de Actualización:** * [ ] Crear el formulario que se autopueble al buscar un libro.
+
 * [X] Integrar el `ttk.Treeview` para visualizar la lista de copias únicas y sus estados.
 
+* [ ] **Motivos de Inactividad Detallados:** Implementar el despliegue del menú de "Motivo de no disponibilidad" solo cuando el estado sea Inactivo, con un catálogo (ej. "En reparación", "Extraviado", "Donación").
+
+* [ ] **Optimización de Guardado**: En el controlador, validar si hubo cambios reales antes de llamar al modelo.
 
 * [ ] **Gran Refactor de Libros:** Limpieza de código, eliminación de comentarios obsoletos y estandarización de nombres de variables en el CRUD de libros.
 
@@ -21,7 +25,10 @@
 *Una vez que Libros es sólido, replicar el esquema en los otros pilares del sistema.*
 
 * [ ] **Búsqueda Global:**
-* [ ] Implementar vista de búsqueda tipo "Inventario Total" (Lectura de todos los libros).
+* [ ] Test de Integración: Diseñar la prueba para get_all_inventory (esperando lista de libros).
+* [ ] Modelo (book_model.py): Implementar get_all_books con SELECT y conteo de copias.
+* [ ] Controlador (book_controller.py): Conectar el retorno del modelo y formatear los datos para el Treeview.
+* [ ] Vista: Crear la pantalla de Inventario Total.
 
 * [ ] **Módulo de Socios (Members):**
 * [ ] Desarrollar CRUD completo (Modelo, Controlador, Vista).
@@ -58,7 +65,8 @@
 * [ ] **Optimización de Consultas (SQL JOINs):** Unificar las llamadas en `get_book_by_id` para traer autores y géneros en una sola sentencia.
 * [ ] **Múltiples Autores:** Rediseñar el modelo y la vista para permitir N autores por libro.
 * [ ] **Gestión de Autores:** Investigar y normalizar el manejo de autores con un solo nombre (ej. Osho, Anónimo).
-* [ ] **Motivos de Inactividad Detallados:** Ampliar el campo `unavailable_reason` con un catálogo (ej. "En reparación", "Extraviado", "Donación").
+📋 Backlog (Versiones Futuras / Fase 3)
+* [ ] **Gestión Individual de Copias:** Botón de edición por fila en el formulario de libro para cambiar estados puntuales (Dañado, Extraviado, etc.).
 * [ ] **Buscador Avanzado:** Implementar un buscador dinámico con filtros avanzados (por autor, por género, título o ISBN, con búsqueda predictiva). Implementar el "Doble clic para editar" (paso de parámetros entre ventanas).
 * [ ] **Validación de ISBN:** Implementar Regex para asegurar el formato estándar de 13 dígitos.
 * [ ] **Carga de Imágenes:** Permitir vincular una ruta de imagen para la portada del libro.

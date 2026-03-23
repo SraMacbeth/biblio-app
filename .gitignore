@@ -12,5 +12,6 @@ app/data/*.db
 test_data/*.db
 *.db
 
-# Archivos de sistema Mac
-.DS_Store
+# Configuraciones del editor
+biblio-app.geany
+*.geany
