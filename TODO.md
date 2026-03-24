@@ -10,13 +10,23 @@
 
 * [X] **Gestión de Ciclo de Vida:** Implementar reactivación de libros (Inactivo -> Activo) y sincronización de copias en update_book.
 
-* [X] **Vista de Actualización:** * [ ] Crear el formulario que se autopueble al buscar un libro.
+* [X] **Vista de Actualización:** Crear el formulario que se autopueble al eidtar un libro.
 
 * [X] Integrar el `ttk.Treeview` para visualizar la lista de copias únicas y sus estados.
 
-* [ ] **Motivos de Inactividad Detallados:** Implementar el despliegue del menú de "Motivo de no disponibilidad" solo cuando el estado sea Inactivo, con un catálogo (ej. "En reparación", "Extraviado", "Donación").
+* [ ] **Reordenamiento Visual del formulario de Edición:** Reemplazo de tabla de copias y campo "Añadir" por botón de "Gestión de Copias" y separador visual.
 
-* [ ] **Optimización de Guardado**: En el controlador, validar si hubo cambios reales antes de llamar al modelo.
+* [ ] **Advertencia Informativa de Estado:** Implementar mensaje informativo al seleccionar un nuevo estado que explique consecuencias y alternativas de gestión individual.
+
+* [ ] **Dinamismo en Motivos de Inactivación:** Crear selector de motivos (Dañado, Robo, Pérdida, Descatalogado, Donación) con visibilidad sujeta al estado "Inactivo".
+
+* [ ] **Validación Decisoria y Guardado:**  Validar si existen modificaciones efectivas en el formulario antes de procesar la actualización.
+
+* [ ] **Optimización de Cambios Reales:** Validar si existen modificaciones efectivas en el formulario antes de procesar la actualización.
+> *​Nota: Incluye creación de test automatizado de flujo de control.*
+
+* [ ] **Formulario de Gestión de Copias (Toplevel):** Crear ventana independiente para administración de ejemplares con lógica de reactivación automática del libro al añadir stock.
+> *​Nota: Incluye creación de test automatizado de reglas de inventario.*
 
 * [ ] **Gran Refactor de Libros:** Limpieza de código, eliminación de comentarios obsoletos y estandarización de nombres de variables en el CRUD de libros.
 
