@@ -14,7 +14,7 @@
 
 * [X] Integrar el `ttk.Treeview` para visualizar la lista de copias únicas y sus estados.
 
-* [ ] **Reordenamiento Visual del formulario de Edición:** Reemplazo de tabla de copias y campo "Añadir" por botón de "Gestión de Copias" y separador visual.
+* [X] **Reordenamiento Visual del formulario de Edición:** Reemplazo de tabla de copias y campo "Añadir" por botón de "Gestión de Copias" y separador visual.
 
 * [ ] **Advertencia Informativa de Estado:** Implementar mensaje informativo al seleccionar un nuevo estado que explique consecuencias y alternativas de gestión individual.
 
