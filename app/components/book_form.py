@@ -100,7 +100,8 @@ class BookForm(Toplevel):
 			self.status_selector = ttk.Combobox(container, textvariable=self.selected_status, values=["Activo", "Inactivo"], state="readonly")
 			self.status_selector.set(self.status)
 			self.status_selector.grid(row=7, column=1, pady=10, sticky="w")
-
+            
+			"""
 			self.copies_label = Label(container, text="Copias a añadir:")
 			self.copies_label.grid(row=8, column=0, pady=10, sticky="w")
 		
@@ -141,9 +142,19 @@ class BookForm(Toplevel):
 			
 			for i in treeview_values:
 				self.copies_treeview.insert(parent='', index='end', values=i)
+			"""
+
+			self.top_separator = ttk.Separator(container)
+			self.top_separator.grid(row=8, column=0, columnspan=2, pady=10, sticky="ew")
+            
+			self.manage_copies_button = Button(container, text="Gestionar copias")
+			self.manage_copies_button.grid(row=9, column=0, columnspan=2, pady=20)
+            
+			self.bottom_separator = ttk.Separator(container)
+			self.bottom_separator.grid(row=10, column=0, columnspan=2, pady=10, sticky="ew")
 
 			self.edit_book_buttton = Button(container, text="Editar libro", command = self.validate_and_save)
-			self.edit_book_buttton.grid(row=10, column=0, columnspan=2, pady=20)
+			self.edit_book_buttton.grid(row=11, column=0, columnspan=2, pady=20)
 
 		self.grid_rowconfigure(0, weight=1)
 
