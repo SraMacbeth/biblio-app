@@ -167,7 +167,14 @@ def update_book(book_id, title, authors, genre, isbn, publisher, copies, status,
 			final_message += header + formatted_list
 		
 		return {"estado": "ok", "mensaje": final_message}
-	
+
+def advertise_change_status(selected_status):
+    
+    """
+    Muestra los mensajes informativos al seleccionar un nuevo estado que explican consecuencias y alternativas de gestión individual
+    """
+    return {"estado": "ok", "mensaje": f"Ha seleccionado '{selected_status}'. \nTenga en cuenta que al guardar, esto afectará a todas las copias del libro actual. \nSi solo quiere modificar algunas, use 'Gestionar Copias' antes de finalizar."}
+
 def get_all_inventory():
 	
 	"""

@@ -101,6 +101,8 @@ class BookForm(Toplevel):
 			self.status_selector.set(self.status)
 			self.status_selector.grid(row=7, column=1, pady=10, sticky="w")
             
+			self.advertise_message = self.status_selector.bind('<<ComboboxSelected>>', lambda e : self.show_advertising())
+            
 			"""
 			self.copies_label = Label(container, text="Copias a añadir:")
 			self.copies_label.grid(row=8, column=0, pady=10, sticky="w")
@@ -162,6 +164,15 @@ class BookForm(Toplevel):
 		self.grid_columnconfigure(1, weight=1)
 		self.grid_columnconfigure(2, weight=1)
 	
+	def show_advertising(self):
+        
+		actual_state = self.selected_status.get()
+        
+		result = book_controller.advertise_change_status(actual_state)
+        
+		if result["estado"] == "ok":
+			messagebox.showinfo("Advertencia", result["mensaje"])
+    
 	def block_resizing(self, event):
 		return "break"
 

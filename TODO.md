@@ -16,7 +16,7 @@
 
 * [X] **Reordenamiento Visual del formulario de Edición:** Reemplazo de tabla de copias y campo "Añadir" por botón de "Gestión de Copias" y separador visual.
 
-* [ ] **Advertencia Informativa de Estado:** Implementar mensaje informativo al seleccionar un nuevo estado que explique consecuencias y alternativas de gestión individual.
+* [X] **Advertencia Informativa de Estado:** Implementar mensaje informativo al seleccionar un nuevo estado que explique consecuencias y alternativas de gestión individual.
 
 * [ ] **Dinamismo en Motivos de Inactivación:** Crear selector de motivos (Dañado, Robo, Pérdida, Descatalogado, Donación) con visibilidad sujeta al estado "Inactivo".
 
