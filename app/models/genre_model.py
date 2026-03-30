@@ -1,18 +1,18 @@
 import sqlite3
 from . import db
 
+
 class Genre():
 
-    @classmethod		
+    @classmethod
     def get_all_genres(cls):
-            
         """
         Obtiene los géneros cargados en la base de datos.
         Retorna una tupla con los nombres de los géneros si hay o None si no hay
         """
-            
+
         try:
-            with db.get_db_connection() as connection: 
+            with db.get_db_connection() as connection:
                 cursor = connection.cursor()
                 cursor.execute("SELECT name FROM genre;")
                 return cursor.fetchall()
@@ -22,4 +22,3 @@ class Genre():
         finally:
             if connection:
                 connection.close()
-        
