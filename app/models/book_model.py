@@ -5,6 +5,7 @@ STATUS_LOAN_AVAILABLE = "Disponible"
 STATUS_LOAN_LOANED = "Prestado"
 STATUS_LOAN_UNAVAILABLE = "No disponible"
 STATUS = "Activo"
+INACTIVE_REASON = ""
 
 
 class Book():
@@ -18,6 +19,7 @@ class Book():
             genre_id,
             user_id,
             status,
+            inactive_reason,
             copies=0):
         self.book_id = book_id
         self.isbn = isbn
@@ -26,6 +28,7 @@ class Book():
         self.genre_id = genre_id
         self.user_id = user_id
         self.status = status
+        self.inactive_reason = inactive_reason
         self.copies = copies
 
     @classmethod
@@ -42,7 +45,7 @@ class Book():
 
                 # Obtener datos del libro segun su ID
                 cursor.execute(
-                    "SELECT book_id, isbn, title, publisher, genre_id, user_id, status FROM book WHERE book_id = ?;",
+                    "SELECT book_id, isbn, title, publisher, genre_id, user_id, status, inactive_reason FROM book WHERE book_id = ?;",
                     (book_id,
                      ))
 
@@ -100,6 +103,7 @@ class Book():
             publisher,
             copies,
             status,
+            inactive_reason,
             user_id):
         """
         Inserta los datos de un nuevo libro en la base de datos
@@ -112,6 +116,7 @@ class Book():
         user_id(int) id del usuario que ingresó el libro
         copies(str) cantidad de copias ingresadas
         status(str) estado del libro en el inventario
+        inactive_reason(str) motivo de inactivacion del libro
         """
 
         try:
@@ -146,13 +151,14 @@ class Book():
 
                     # Insertar libro
                     cursor.execute(
-                        "INSERT INTO book (isbn, title, publisher, genre_id, user_id, status) VALUES(?, ?, ?, ?, ?, ?);",
+                        "INSERT INTO book (isbn, title, publisher, genre_id, user_id, status, inactive_reason) VALUES(?, ?, ?, ?, ?, ?, ?);",
                         (isbn,
                          title,
                          publisher,
                          genre_id,
                          user_id,
-                         status))
+                         status,
+                         inactive_reason))
                     book_id = cursor.lastrowid
 
                     # Verificar / insertar autores y asociar tablas
@@ -190,11 +196,12 @@ class Book():
                         list_copy_code.append(copy_code)
 
                         cursor.execute(
-                            "INSERT INTO copy (book_id, isbn, copy_code, status_loan, user_id) VALUES (?, ?, ?, ?, ?)",
+                            "INSERT INTO copy (book_id, isbn, copy_code, status_loan, unavailable_reason, user_id) VALUES (?, ?, ?, ?, ?, ?)",
                             (book_id,
                              isbn,
                              copy_code,
                              STATUS_LOAN_AVAILABLE,
+                             INACTIVE_REASON,
                              user_id))
 
                     connection.commit()
@@ -216,20 +223,21 @@ class Book():
             publisher,
             copies,
             status,
-            unavailable_reason,
+            inactive_reason,
             user_id):
         """
         Actualiza los datos de un libro existente en la base de datos
         Parametros:
-        isbn(int) isbn del libro
+        book_id(int) id del libro
         title(str) título del libro
         authors(str) nombre y apellido de los autores
-        publisher(str) editorial
         genre(str) género al que pertenece el libro
-        user_id(int) id del usuario que ingresó el libro
+        isbn(int) isbn del libro
+        publisher(str) editorial
         copies(str) cantidad de copias ingresadas
-        initial_status(str) estado inicial del libro en el inventario
-        status_reason(str) motivo por el cual se produce el estado del libro en el inventario
+        status(str) estado inicial del libro en el inventario
+        inactive_reason(str) motivo de inactividad del libro
+        user_id(int) id del usuario que ingresó el libro
         """
 
         try:
@@ -280,7 +288,7 @@ class Book():
                     cursor.execute(
                         "UPDATE copy set status_loan = ?, unavailable_reason = ? WHERE book_id = ?",
                         (STATUS_LOAN_AVAILABLE,
-                         None,
+                         inactive_reason,
                          book_id))
 
                 # Lista para guardar los copy_code que se mostrarán al usuario
@@ -343,11 +351,12 @@ class Book():
                         list_copy_code.append(new_copy_code)
 
                         cursor.execute(
-                            "INSERT INTO copy (book_id, isbn, copy_code, status_loan, user_id) VALUES (?, ?, ?, ?, ?)",
+                            "INSERT INTO copy (book_id, isbn, copy_code, status_loan, unavailable_reason, user_id) VALUES (?, ?, ?, ?, ?, ?)",
                             (book_id,
                              isbn,
                              new_copy_code,
                              STATUS_LOAN_AVAILABLE,
+                             inactive_reason,
                              user_id))
 
                 # Extraer genre_id o ingresar un nuevo género si no existe
@@ -365,13 +374,14 @@ class Book():
 
                 # Actualizar libro con los datos proporcionados
                 cursor.execute(
-                    "UPDATE book set isbn = ?, title = ?, publisher = ?, genre_id = ?, user_id = ?, status = ? WHERE book_id = ?",
+                    "UPDATE book set isbn = ?, title = ?, publisher = ?, genre_id = ?, user_id = ?, status = ?, inactive_reason = ? WHERE book_id = ?",
                     (isbn,
                      title,
                      publisher,
                      genre_id,
                      user_id,
                      status,
+                     inactive_reason,
                      book_id))
 
                 # Resetear las asociaciones de libro-autor en la tabla
@@ -407,8 +417,9 @@ class Book():
                 # disponible"
                 if status == "Inactivo":
                     cursor.execute(
-                        "UPDATE copy set status_loan = ?, unavailable_reason = 'Libro Inactivado' WHERE book_id = ?",
+                        "UPDATE copy set status_loan = ?, unavailable_reason = ? WHERE book_id = ?",
                         (STATUS_LOAN_UNAVAILABLE,
+                         inactive_reason,
                          book_id))
 
                 connection.commit()

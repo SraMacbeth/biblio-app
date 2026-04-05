@@ -17,7 +17,6 @@ def get_db_connection():
     else:
         # Ruta normal para la app real
         db_path = os.path.join(BASE_DIR, "app", "data", "library.db")
-        print(db_path)
 
     # Verificamos que la carpeta exista antes de conectar
     os.makedirs(os.path.dirname(db_path), exist_ok=True)
@@ -110,13 +109,13 @@ def setup_database():
             insert_query = "INSERT INTO genre (name) VALUES (?)"
             cursor.executemany(insert_query, GENRES_TO_LOAD)
 
-        cursor.execute("CREATE TABLE IF NOT EXISTS book (book_id INTEGER PRIMARY KEY, isbn TEXT NOT NULL, title TEXT NOT NULL, publisher TEXT NOT NULL, genre_id INTEGER NOT NULL, user_id INTEGER NOT NULL, status TEXT NOT NULL, FOREIGN KEY (genre_id) REFERENCES genre(genre_id), FOREIGN KEY (user_id) REFERENCES user(user_id));")
+        cursor.execute("CREATE TABLE IF NOT EXISTS book (book_id INTEGER PRIMARY KEY, isbn TEXT NOT NULL, title TEXT NOT NULL, publisher TEXT NOT NULL, genre_id INTEGER NOT NULL, user_id INTEGER NOT NULL, status TEXT NOT NULL, inactive_reason TEXT NOT NULL, FOREIGN KEY (genre_id) REFERENCES genre(genre_id), FOREIGN KEY (user_id) REFERENCES user(user_id));")
 
         cursor.execute("CREATE TABLE IF NOT EXISTS book_author (book_id INTEGER, author_id INTEGER, FOREIGN KEY (book_id) REFERENCES book(book_id), FOREIGN KEY (author_id) REFERENCES author(author_id));")
 
         cursor.execute("CREATE TABLE IF NOT EXISTS book_genre (book_id INTEGER, genre_id INTEGER, FOREIGN KEY (book_id) REFERENCES book(book_id), FOREIGN KEY (genre_id) REFERENCES genre(genre_id));")
 
-        cursor.execute("CREATE TABLE IF NOT EXISTS copy (copy_id INTEGER PRIMARY KEY, book_id INTEGER, isbn TEXT NOT NULL, copy_code TEXT UNIQUE NOT NULL,status_loan TEXT NOT NULL, unavailable_reason TEXT NULL, user_id INTEGER, FOREIGN KEY (book_id) REFERENCES book(book_id), FOREIGN KEY (user_id) REFERENCES user(user_id));")
+        cursor.execute("CREATE TABLE IF NOT EXISTS copy (copy_id INTEGER PRIMARY KEY, book_id INTEGER, isbn TEXT NOT NULL, copy_code TEXT UNIQUE NOT NULL,status_loan TEXT NOT NULL, unavailable_reason TEXT NOT NULL, user_id INTEGER, FOREIGN KEY (book_id) REFERENCES book(book_id), FOREIGN KEY (user_id) REFERENCES user(user_id));")
 
         cursor.execute("CREATE TABLE IF NOT EXISTS loan (loan_id INTEGER PRIMARY KEY, member_id INTEGER, copy_id INTEGER, loan_date DATE NOT NULL, due_date DATE NOT NULL, return_date DATE NOT NULL, user_id INTEGER, FOREIGN KEY (member_id) REFERENCES member(member_id), FOREIGN KEY (copy_id) REFERENCES copy(copy_id), FOREIGN KEY (user_id) REFERENCES user(user_id));")
 

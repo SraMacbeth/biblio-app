@@ -10,6 +10,7 @@ STATUS_LOAN_AVAILABLE = "Disponible"
 STATUS_LOAN_LOANED = "Prestado"
 STATUS_LOAN_UNAVAILABLE = "No disponible"
 STATUS = "Activo"
+INACTIVE_REASON = ""
 TEST_ISBN = "9789500739718"
 TEST_USER_ID = 1
 
@@ -62,12 +63,13 @@ class TestBookModel(unittest.TestCase):
                            "Alfaguara",
                            3,
                            STATUS,
+                           INACTIVE_REASON,
                            TEST_USER_ID]
 
         # Act: Intentamos insertar
         exito = Book.add_book(*libro_a_agregar)
 
-        # Aseert
+        # Asert
         self.assertTrue(exito, "La inserción falló")
 
         # Verificacion de codigos
@@ -85,6 +87,7 @@ class TestBookModel(unittest.TestCase):
         self.assertEqual(inserted_book[3][0][1], "978-1-1", "978-1-1")
         self.assertEqual(inserted_book[3][1][1], "978-1-2", "978-1-2")
         self.assertEqual(inserted_book[3][2][1], "978-1-3", "978-1-3")
+        self.assertEqual(inserted_book[0][7], "")
 
     def test_buscar_por_id(self):
         '''Asegura que get_book_by_id devuelve exactamente lo que se espera'''
@@ -98,6 +101,7 @@ class TestBookModel(unittest.TestCase):
                        "Alfaguara",
                        1,
                        STATUS,
+                       INACTIVE_REASON,
                        TEST_USER_ID]
         Book.add_book(*libro_datos)
 
@@ -130,8 +134,9 @@ class TestBookModel(unittest.TestCase):
                        "978-1",
                        "Alfaguara",
                        1,
-                       TEST_USER_ID,
-                       STATUS]
+                       STATUS,
+                       INACTIVE_REASON,
+                       TEST_USER_ID]
         Book.add_book(*libro_datos)
 
         # Buscar el ID del libro ingresado en la DB por el ISBN del libro
@@ -166,6 +171,7 @@ class TestBookModel(unittest.TestCase):
                        "Alfaguara",
                        1,
                        STATUS,
+                       INACTIVE_REASON,
                        TEST_USER_ID]
         Book.add_book(*libro_datos)
 
@@ -187,7 +193,7 @@ class TestBookModel(unittest.TestCase):
                         "Alfaguara",
                         1,
                         "Inactivo",
-                        None,
+                        "Robo",
                         TEST_USER_ID]
 
         # Act
@@ -220,6 +226,7 @@ class TestBookModel(unittest.TestCase):
                        "Alfaguara",
                        2,
                        STATUS,
+                       INACTIVE_REASON,
                        TEST_USER_ID]
         Book.add_book(*libro_datos)
 
@@ -241,7 +248,7 @@ class TestBookModel(unittest.TestCase):
                         "Alfaguara",
                         4,
                         STATUS,
-                        None,
+                        INACTIVE_REASON,
                         TEST_USER_ID]
         Book.update_book(*nuevos_datos)
 
@@ -279,6 +286,7 @@ class TestBookModel(unittest.TestCase):
                        "Alfaguara",
                        1,
                        STATUS,
+                       INACTIVE_REASON,
                        TEST_USER_ID]
         Book.add_book(*libro_datos)
 
@@ -310,7 +318,7 @@ class TestBookModel(unittest.TestCase):
                         "Alfaguara",
                         1,
                         "Inactivo",
-                        None,
+                        "Robo",
                         TEST_USER_ID]
 
         # Act
@@ -334,6 +342,7 @@ Verifica que si el modelo recibe un 0 en el número de copias al agregar un libr
                        "Alfaguara",
                        0,
                        STATUS,
+                       INACTIVE_REASON,
                        TEST_USER_ID]
 
         # Act
@@ -348,15 +357,16 @@ Verifica que si un libro pasa de estado "Inactivo" a "Activo" todas sus copias s
 '''
 
     # PREPARACIÓN:
-    # Insertar un libro inactivo con copias no disponibles
+    # Insertar un libro
         datos_libro = ["Rayuela",
                        [("Julio",
                          "Cortázar")],
                        "Ficción Contemporánea",
                        "978-1",
                        "Alfaguara",
-                       1,
-                       "Inactivo",
+                       2,
+                       STATUS,
+                       INACTIVE_REASON,
                        TEST_USER_ID]
         Book.add_book(*datos_libro)
 
@@ -367,19 +377,8 @@ Verifica que si un libro pasa de estado "Inactivo" a "Activo" todas sus copias s
         row = cursor.fetchone()
         generated_id = row[0]
         conn.close()
-
-        # Cambiar manualmente el estado de una copia a "No disponible"
-        conn = test_db_setup.get_test_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            "UPDATE copy SET status_loan = ?, unavailable_reason = ? WHERE rowid IN (SELECT rowid FROM copy WHERE book_id = ? AND status_loan = 'Disponible')",
-            (STATUS_LOAN_UNAVAILABLE,
-             "Libro Inactivado",
-             generated_id))
-        conn.commit()
-        conn.close()
-
-        # Act
+        
+        # Actualizar el libro pasando su estatus a "Inactivo"
         nuevos_datos = [generated_id,
                         "Rayuela",
                         [("Julio",
@@ -387,13 +386,27 @@ Verifica que si un libro pasa de estado "Inactivo" a "Activo" todas sus copias s
                         "Ficción Contemporánea",
                         "978-1",
                         "Alfaguara",
-                        1,
-                        STATUS,
-                        None,
+                        0,
+                        "Inactivo",
+                        "Robo",
                         TEST_USER_ID]
         Book.update_book(*nuevos_datos)
 
-        # Extraer el status_loan y el unavailabre_reason del libro luego de la
+        # Act: Reactivar el libro pasandolo a Activo
+        nuevos_datos_2 = [generated_id,
+                        "Rayuela",
+                        [("Julio",
+                          "Cortázar")],
+                        "Ficción Contemporánea",
+                        "978-1",
+                        "Alfaguara",
+                        0,
+                        STATUS,
+                        INACTIVE_REASON,
+                        TEST_USER_ID]
+        Book.update_book(*nuevos_datos_2)
+        
+        # Extraer el status_loan y el unavailabre_reason de las copias luego de la
         # actualizacion
         conn = test_db_setup.get_test_connection()
         cursor = conn.cursor()
@@ -409,4 +422,4 @@ Verifica que si un libro pasa de estado "Inactivo" a "Activo" todas sus copias s
             row[0],
             "Disponible",
             "El libro no se encuentra disponible")
-        self.assertEqual(row[1], None, "El libro tiene una observacion")
+        self.assertEqual(row[1], "", "El libro tiene una observacion")
