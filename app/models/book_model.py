@@ -122,7 +122,7 @@ class Book():
         try:
 
             if copies <= 0:
-                return False, "El modelo requiere al menos una copia.", []
+                return False, "El libro ingresado debe tener al menos una copia.", []
 
             with db.get_db_connection() as connection:
                 cursor = connection.cursor()

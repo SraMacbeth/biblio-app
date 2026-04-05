@@ -1,9 +1,9 @@
 import re
 
 try:
-    from app.models.book_model import Book, STATUS
+    from app.models.book_model import Book, STATUS, INACTIVE_REASON
 except ModuleNotFoundError as e:
-    from models.book_model import Book, STATUS
+    from models.book_model import Book, STATUS,INACTIVE_REASON
 
 # TODO: Reemplazar por el ID del usuario logueado cuando el sistema de
 # login esté conectado
@@ -65,6 +65,8 @@ def search_book_by_id(book_id):
         publisher = book_items[3]
 
         status = book_items[6]
+        
+        inactive_reason = book_items[7]
 
         formatted_copies = []
 
@@ -88,6 +90,7 @@ def search_book_by_id(book_id):
             isbn,
             publisher,
             status,
+            inactive_reason,
             formatted_copies,
             total_copies,
             available_copies]
@@ -100,14 +103,13 @@ def search_book_by_id(book_id):
 
 def add_book(title, authors, genre, isbn, publisher, copies):
     """
-    agrega un nuevo libro en la base de datos
+    Agrega un nuevo libro en la base de datos
     Parametros:
-    isbn(int) isbn del libro
     title(str) título del libro
     authors(str) nombre y apellido de los autores
-    publisher(str) editorial
     genre(str) género al que pertenece el libro
-    user_id(int) id del usuario que ingresó el libro
+    isbn(int) isbn del libro
+    publisher(str) editorial
     copies(str) cantidad de copias ingresadas
     Retorna diferentes mensajes en funcion de los casos
     """
@@ -123,14 +125,9 @@ def add_book(title, authors, genre, isbn, publisher, copies):
         return {
             "estado": "error",
             "mensaje": "El campo copias solo acepta valores numéricos."}
-
-    if int_copies <= 0:
-        return {
-            "estado": "error",
-            "mensaje": "El libro ingresado debe tener al menos una copia."}
-
+    
     success, message, copy_codes = Book.add_book(
-        title, authors, genre, isbn, publisher, int_copies, status=STATUS, user_id=CURRENT_USER_ID)
+        title, authors, genre, isbn, publisher, int_copies, status=STATUS, inactive_reason=INACTIVE_REASON, user_id=CURRENT_USER_ID)
 
     if not success:
         return {"estado": "error", "mensaje": message}
