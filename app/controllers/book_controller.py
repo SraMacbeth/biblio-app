@@ -154,7 +154,7 @@ def update_book(
         publisher,
         copies,
         status,
-        unavailable_reason):
+        inactive_reason):
     """
     actualiza un libro existente en la base de datos
     Parametros:
@@ -166,8 +166,7 @@ def update_book(
     publisher(str) editorial
     copies(str) cantidad de copias ingresadas
     status (str) estado del libro en el inventario
-    unavailable_reason (str) motivo por el cual un libro no esta disponible para prestamo
-    user_id(int) id del usuario que ingresó el libro
+    inactive_reason (str) motivo por el cual un libro no esta disponible para prestamo
     Retorna diferentes mensajes en funcion de los casos
     """
 
@@ -188,11 +187,11 @@ def update_book(
             "estado": "error",
             "mensaje": "La cantidad de copias a añadir debe ser un número positivo o 0 si no desea añadir copias."}
 
-    if not unavailable_reason or unavailable_reason.strip() == "":
-        unavailable_reason = "---"
+    if not inactive_reason or inactive_reason.strip() == "":
+        inactive_reason = "---"
 
     success, message, copy_codes = Book.update_book(
-        book_id, title, authors, genre, isbn, publisher, int_copies, status, unavailable_reason, user_id=CURRENT_USER_ID)
+        book_id, title, authors, genre, isbn, publisher, int_copies, status, inactive_reason, user_id=CURRENT_USER_ID)
 
     final_message = message
 

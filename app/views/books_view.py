@@ -86,8 +86,9 @@ class BooksView(BaseView):
             isbn = data[5]
             publisher = data[6]
             status = data[7]
-            total_copies = data[9]
-            available_copies = data[10]
+            #inactive_reason = data[8]
+            total_copies = data[11]
+            available_copies = data[11]
 
             treeview_values = [
                 register_id,
@@ -143,7 +144,7 @@ class BooksView(BaseView):
         result = book_controller.search_book_by_id(book_id)
 
         if result["estado"] == "ok":
-            id_book, title, author_firstname, author_lastname, genre, isbn, publisher, status, copies_data, total_copies, available_copies = result[
+            id_book, title, author_firstname, author_lastname, genre, isbn, publisher, status, inactive_reason, copies_data, total_copies, available_copies = result[
                 "detalles"]
 
         edit_book_form = BookForm(
@@ -159,6 +160,7 @@ class BooksView(BaseView):
             isbn=isbn,
             publisher=publisher,
             status=status,
+            inactive_reason=inactive_reason,
             copies_data=copies_data)
 
         edit_book_form.transient(self)

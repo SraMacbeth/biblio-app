@@ -25,7 +25,8 @@ class BookForm(Toplevel):
             isbn="",
             publisher="",
             copies_data="",
-            status=""):
+            status="", 
+            inactive_reason=""):
         super().__init__(parent)
         self.form_title = form_title
         self.controller = controller
@@ -40,6 +41,7 @@ class BookForm(Toplevel):
         self.publisher = publisher
         self.copies_data = copies_data
         self.status = status
+        self.inactive_reason = inactive_reason
 
         self.title(self.form_title)
         # self.geometry("500x500")
@@ -138,6 +140,17 @@ class BookForm(Toplevel):
             self.advertise_message = self.status_selector.bind(
                 '<<ComboboxSelected>>', lambda e: self.show_advertising())
 
+            self.inactive_reason_label = Label(container, text="Motivo de inactivación:")
+            
+            self.selected_inactive_reason = StringVar(value=self.inactive_reason)
+
+            self.inactive_reason_selector = ttk.Combobox(
+                container, textvariable=self.selected_inactive_reason, values=[
+                    "Dañado", "En reparación", "Donación", "Descatalogado", "Pérdida", "Robo"], state="readonly")
+            
+            self.selected_inactive_reason.set(self.inactive_reason)
+            
+            self.toggle_reason_visibility()
             """
 			self.copies_label = Label(container, text="Copias a añadir:")
 			self.copies_label.grid(row=8, column=0, pady=10, sticky="w")
@@ -183,21 +196,21 @@ class BookForm(Toplevel):
 
             self.top_separator = ttk.Separator(container)
             self.top_separator.grid(
-                row=8, column=0, columnspan=2, pady=10, sticky="ew")
+                row=9, column=0, columnspan=2, pady=10, sticky="ew")
 
             self.manage_copies_button = Button(
                 container, text="Gestionar copias")
             self.manage_copies_button.grid(
-                row=9, column=0, columnspan=2, pady=20)
+                row=10, column=0, columnspan=2, pady=20)
 
             self.bottom_separator = ttk.Separator(container)
             self.bottom_separator.grid(
-                row=10, column=0, columnspan=2, pady=10, sticky="ew")
+                row=11, column=0, columnspan=2, pady=10, sticky="ew")
 
             self.edit_book_buttton = Button(
                 container, text="Editar libro", command=self.validate_and_save)
             self.edit_book_buttton.grid(
-                row=11, column=0, columnspan=2, pady=20)
+                row=12, column=0, columnspan=2, pady=20)
 
         self.grid_rowconfigure(0, weight=1)
 
@@ -213,6 +226,18 @@ class BookForm(Toplevel):
 
         if result["estado"] == "ok":
             messagebox.showinfo("Advertencia", result["mensaje"])
+            
+        self.toggle_reason_visibility()
+
+    def toggle_reason_visibility(self, *args):
+        
+        if self.status_selector.get() == "Activo":
+            self.inactive_reason_label.grid_remove()
+            self.inactive_reason_selector.grid_remove()
+            self.selected_inactive_reason.set("")
+        else:
+            self.inactive_reason_label.grid(row=8, column=0, pady=10, sticky="w")
+            self.inactive_reason_selector.grid(row=8, column=1, pady=10, sticky="w")
 
     def block_resizing(self, event):
         return "break"
@@ -236,9 +261,12 @@ class BookForm(Toplevel):
                              self.selected_genre.get(),
                              self.isbn_entry.get(),
                              self.publisher_entry.get(),
-                             self.copies_entry.get(),
+                             #self.copies_entry.get(),
+                             "0",
                              self.selected_status.get(),
-                             None)
+                             self.selected_inactive_reason.get(),
+                             #None
+                             )
 
     def add_new_book(self, title, authors, genre, isbn, publisher, copies):
 
