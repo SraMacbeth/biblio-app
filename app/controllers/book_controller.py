@@ -32,6 +32,10 @@ def format_copy_codes(codes_list):
 
 
 def search_book_by_id(book_id):
+    
+    """
+    Permite buscar un libro según su ID.
+    """
 
     if book_id == "":
         return {
@@ -101,6 +105,53 @@ def search_book_by_id(book_id):
             "detalles": book_details}
 
 
+def validate_fields_form(data_to_validate):
+
+        """
+        Valida los datos ingresados por el usuario en los formularios de alta y edición de libro, asegurando que no se envíen al modelo datos vacíos o valores inválidos para las copias.
+        Retorna diferentes mensajes en funcion de los casos.
+        """
+    
+        if data_to_validate["title"] == "" or data_to_validate["authors"][0][0] == "" or data_to_validate["authors"][0][1] == "" or data_to_validate["genre"] == "" or data_to_validate["isbn"] == "" or data_to_validate["publisher"] == "":
+            return {
+                "estado": "error",
+                "mensaje": "Los campos no pueden estar vacíos."}
+            
+        if data_to_validate["type_form"] == "new_book_form":
+            if data_to_validate["copies"] == "":
+                return {
+                "estado": "error",
+                "mensaje": "Los campos no pueden estar vacíos."}
+ 
+            try:
+                int_copies = int(data_to_validate["copies"])
+                data_to_validate["copies"] = int_copies
+            except ValueError:
+                return {
+                    "estado": "error",
+                    "mensaje": "El campo copias solo acepta valores numéricos."}
+ 
+            if int_copies <= 0:
+                return {
+                    "estado": "error",
+                    "mensaje": "La cantidad de copias a añadir debe ser un número positivo."}
+        
+        elif data_to_validate["type_form"] == "edit_book_form":
+            
+            data_to_validate["status"] = data_to_validate["status"][0]
+
+            if data_to_validate["status"] == "Inactivo" and data_to_validate["inactive_reason"] == "":
+                return {
+                "estado": "error",
+                "mensaje": "Los campos no pueden estar vacíos."}
+            if data_to_validate["status"] == "Activo":
+                data_to_validate["inactive_reason"] = "---"
+        
+        return {
+            "estado": "ok",
+            "mensaje": "Campos validados correctamente."}
+
+
 def add_book(title, authors, genre, isbn, publisher, copies):
     """
     Agrega un nuevo libro en la base de datos
@@ -113,21 +164,9 @@ def add_book(title, authors, genre, isbn, publisher, copies):
     copies(str) cantidad de copias ingresadas
     Retorna diferentes mensajes en funcion de los casos
     """
-
-    if title == "" or authors[0][0] == "" or authors[0][1] == "" or genre == "" or isbn == "" or publisher == "" or copies == "":
-        return {
-            "estado": "error",
-            "mensaje": "Los campos no pueden estar vacíos."}
-
-    try:
-        int_copies = int(copies)
-    except ValueError:
-        return {
-            "estado": "error",
-            "mensaje": "El campo copias solo acepta valores numéricos."}
     
     success, message, copy_codes = Book.add_book(
-        title, authors, genre, isbn, publisher, int_copies, status=STATUS, inactive_reason=INACTIVE_REASON, user_id=CURRENT_USER_ID)
+        title, authors, genre, isbn, publisher, copies, status=STATUS, inactive_reason=INACTIVE_REASON, user_id=CURRENT_USER_ID)
 
     if not success:
         return {"estado": "error", "mensaje": message}
@@ -152,7 +191,6 @@ def update_book(
         genre,
         isbn,
         publisher,
-        copies,
         status,
         inactive_reason):
     """
@@ -169,29 +207,8 @@ def update_book(
     inactive_reason (str) motivo por el cual un libro no esta disponible para prestamo
     Retorna diferentes mensajes en funcion de los casos
     """
-
-    if title == "" or authors[0][0] == "" or authors[0][1] == "" or genre == "" or isbn == "" or publisher == "" or copies == "" or status == "":
-        return {
-            "estado": "error",
-            "mensaje": "Los campos no pueden estar vacíos"}
-
-    try:
-        int_copies = int(copies)
-    except ValueError:
-        return {
-            "estado": "error",
-            "mensaje": "El campo copias solo acepta valores numéricos."}
-
-    if int_copies < 0:
-        return {
-            "estado": "error",
-            "mensaje": "La cantidad de copias a añadir debe ser un número positivo o 0 si no desea añadir copias."}
-
-    if not inactive_reason or inactive_reason.strip() == "":
-        inactive_reason = "---"
-
     success, message, copy_codes = Book.update_book(
-        book_id, title, authors, genre, isbn, publisher, int_copies, status, inactive_reason, user_id=CURRENT_USER_ID)
+        book_id, title, authors, genre, isbn, publisher, status, inactive_reason, user_id=CURRENT_USER_ID)
 
     final_message = message
 
@@ -211,12 +228,21 @@ def update_book(
         return {"estado": "ok", "mensaje": final_message}
 
 
-def advertise_change_status(selected_status):
+def advertise_change_status(selected_status, widget):
     """
-    Muestra los mensajes informativos al seleccionar un nuevo estado que explican consecuencias y alternativas de gestión individual
+    Muestra el mensaje de advertencia que explica las consecuencias del cambio de estado de un libro
     """
-    return {"estado": "ok", "mensaje": f"Ha seleccionado '{selected_status}'. \nTenga en cuenta que al guardar, esto afectará a todas las copias del libro actual. \nSi solo quiere modificar algunas, use 'Gestionar Copias' antes de finalizar."}
-
+    
+    copies_name = ""
+    
+    
+    if selected_status == "Inactivo":
+            copies_name = "inactivas"
+    else:
+        copies_name = "activas"
+        
+    if widget == "edit_button":
+        return {"estado": "ok", "mensaje": f"¿Confirma el cambio de estado? \nTenga en cuenta que esta acción afectará a todas las copias del libro actual y las pondrá como {copies_name}."}
 
 def get_all_inventory():
     """

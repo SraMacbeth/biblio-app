@@ -204,7 +204,7 @@ class TestBookController(unittest.TestCase):
 
         # Act - Intentar editar el segundo libro poniéndole el ISBN del primero
         nuevos_datos_segundo_libro = [generated_id, "Las venas abiertas de América Latina", [
-            ("Eduardo", "Galeano")], "Ensayo", "978-1", "Siglo XXI Editores", 1, STATUS, None]
+            ("Eduardo", "Galeano")], "Ensayo", "978-1", "Siglo XXI Editores", STATUS, None]
         exito = book_controller.update_book(*nuevos_datos_segundo_libro)
 
         # Assert

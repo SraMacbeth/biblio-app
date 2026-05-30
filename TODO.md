@@ -18,9 +18,9 @@
 
 * [X] **Advertencia Informativa de Estado:** Implementar mensaje informativo al seleccionar un nuevo estado que explique consecuencias y alternativas de gestión individual.
 
-* [ ] **Dinamismo en Motivos de Inactivación:** Crear selector de motivos (Dañado, Robo, Pérdida, Descatalogado, Donación) con visibilidad sujeta al estado "Inactivo".
+* [X] **Dinamismo en Motivos de Inactivación:** Crear selector de motivos (Dañado, Robo, Pérdida, Descatalogado, Donación) con visibilidad sujeta al estado "Inactivo".
 
-* [ ] **Validación Decisoria y Guardado:**  Validar si existen modificaciones efectivas en el formulario antes de procesar la actualización.
+* [X] **Validación Decisoria y Guardado:**  Validar si existen modificaciones efectivas en el formulario antes de procesar la actualización.
 
 * [ ] **Optimización de Cambios Reales:** Validar si existen modificaciones efectivas en el formulario antes de procesar la actualización.
 > *​Nota: Incluye creación de test automatizado de flujo de control.*
@@ -67,6 +67,8 @@
 * [ ] **Manejo de Errores en UI:** Asegurar que todos los mensajes de error del controlador se muestren en `messagebox` de Tkinter.
 
 * [ ] **Estandarización de Flujo de Ventanas:** Asegurar que los formularios permanezcan abiertos ante errores de validación y solo se cierren tras una confirmación de éxito ("ok").
+
+* ​[ ] **Gestión de Ventanas Modales:** Implementar WM_DELETE_WINDOW en la ventana principal para interceptar el cierre accidental mientras existan subformularios activos.
 
 ## 🔵 Fase 4: Versión Mejorada (Post-MVP / Futuro)
 

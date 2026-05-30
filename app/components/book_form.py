@@ -46,7 +46,6 @@ class BookForm(Toplevel):
         self.title(self.form_title)
         # self.geometry("500x500")
         self.resizable(False, False)
-
         container = Frame(self)
         container.grid(row=0, column=1, padx=20, pady=20)
 
@@ -137,8 +136,8 @@ class BookForm(Toplevel):
             self.status_selector.set(self.status)
             self.status_selector.grid(row=7, column=1, pady=10, sticky="w")
 
-            self.advertise_message = self.status_selector.bind(
-                '<<ComboboxSelected>>', lambda e: self.show_advertising())
+            self.inactive_reason_selector_visibility = self.status_selector.bind(
+                '<<ComboboxSelected>>', lambda e: self.toggle_reason_visibility())
 
             self.inactive_reason_label = Label(container, text="Motivo de inactivación:")
             
@@ -207,9 +206,9 @@ class BookForm(Toplevel):
             self.bottom_separator.grid(
                 row=11, column=0, columnspan=2, pady=10, sticky="ew")
 
-            self.edit_book_buttton = Button(
+            self.edit_book_button = Button(
                 container, text="Editar libro", command=self.validate_and_save)
-            self.edit_book_buttton.grid(
+            self.edit_book_button.grid(
                 row=12, column=0, columnspan=2, pady=20)
 
         self.grid_rowconfigure(0, weight=1)
@@ -218,16 +217,6 @@ class BookForm(Toplevel):
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure(2, weight=1)
 
-    def show_advertising(self):
-
-        actual_state = self.selected_status.get()
-
-        result = book_controller.advertise_change_status(actual_state)
-
-        if result["estado"] == "ok":
-            messagebox.showinfo("Advertencia", result["mensaje"])
-            
-        self.toggle_reason_visibility()
 
     def toggle_reason_visibility(self, *args):
         
@@ -243,69 +232,74 @@ class BookForm(Toplevel):
         return "break"
 
     def validate_and_save(self):
-
+        
+        data_to_validate = {
+            "title" : self.book_title_entry.get(),
+            "authors":[(self.first_name_author_entry.get(),
+                        self.last_name_author_entry.get())],
+            "genre": self.selected_genre.get(),
+            "isbn": self.isbn_entry.get(),
+            "publisher":self.publisher_entry.get(),
+            "type_form": self.type_form
+            } 
+            
         if self.type_form == "new_book_form":
-            self.add_new_book(self.book_title_entry.get(),
-                              [(self.first_name_author_entry.get(),
-                                self.last_name_author_entry.get())],
-                              self.selected_genre.get(),
-                              self.isbn_entry.get(),
-                              self.publisher_entry.get(),
-                              self.copies_entry.get())
+            data_to_validate["copies"] = self.copies_entry.get()
+            
+        if self.type_form == "edit_book_form":
+            data_to_validate["status"] = self.selected_status.get(),
+            data_to_validate["inactive_reason"] = self.selected_inactive_reason.get()
+                            
+        validate_response = book_controller.validate_fields_form(data_to_validate)
+       
+        if validate_response["estado"] == "error":
+            messagebox.showerror("Error", validate_response["mensaje"])
+            return
+        
+        if self.type_form == "new_book_form":
+            
+            result_add = book_controller.add_book(data_to_validate["title"],
+                        data_to_validate["authors"],
+                        data_to_validate["genre"],
+                        data_to_validate["isbn"],
+                        data_to_validate["publisher"],
+                        data_to_validate["copies"])
+            
+            if result_add["estado"] == "error":
+                messagebox.showerror("Error", result_add["mensaje"])
+                return
+            else:
+                messagebox.showinfo("Exito", result_add["mensaje"])
+                self.grab_release()
+                self.destroy()
 
         if self.type_form == "edit_book_form":
-            self.update_book(self.book_id,
-                             self.book_title_entry.get(),
-                             [(self.first_name_author_entry.get(),
-                               self.last_name_author_entry.get())],
-                             self.selected_genre.get(),
-                             self.isbn_entry.get(),
-                             self.publisher_entry.get(),
-                             #self.copies_entry.get(),
-                             "0",
-                             self.selected_status.get(),
-                             self.selected_inactive_reason.get(),
-                             #None
-                             )
-
-    def add_new_book(self, title, authors, genre, isbn, publisher, copies):
-
-        result = book_controller.add_book(
-            title, authors, genre, isbn, publisher, copies)
-
-        if result["estado"] == "ok":
-            messagebox.showinfo("Exito", result["mensaje"])
-            self.grab_release()
-            self.destroy()
-        else:
-            messagebox.showerror("Error", result["mensaje"])
-
-    def update_book(
-            self,
-            book_id,
-            title,
-            authors,
-            genre,
-            isbn,
-            publisher,
-            copies,
-            status,
-            unavailable_reason):
-
-        result = book_controller.update_book(
-            book_id,
-            title,
-            authors,
-            genre,
-            isbn,
-            publisher,
-            copies,
-            status,
-            unavailable_reason)
-
-        if result["estado"] == "ok":
-            messagebox.showinfo("Exito", result["mensaje"])
-            self.grab_release()
-            self.destroy()
-        else:
-            messagebox.showerror("Error", result["mensaje"])
+                                                
+            if data_to_validate["status"] != self.status:
+                
+                
+                result_advertise = book_controller.advertise_change_status(data_to_validate["status"], "edit_button")
+                
+                response_advertise = messagebox.askokcancel("Advertencia", result_advertise["mensaje"])
+                
+                if response_advertise == False:
+                    return
+                
+            result_update = book_controller.update_book(
+                            self.book_id,
+                            data_to_validate["title"],
+                            data_to_validate["authors"],
+                            data_to_validate["genre"],
+                            data_to_validate["isbn"],
+                            data_to_validate["publisher"],
+                            data_to_validate["status"],
+                            data_to_validate["inactive_reason"])
+                
+            if result_update["estado"] == "error":
+                messagebox.showerror("Error", result_update["mensaje"])
+                return
+                    
+            else:
+                messagebox.showinfo("Exito", result_update["mensaje"])
+                self.grab_release()
+                self.destroy()

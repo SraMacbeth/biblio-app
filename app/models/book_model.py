@@ -221,7 +221,7 @@ class Book():
             genre,
             isbn,
             publisher,
-            copies,
+            #copies,
             status,
             inactive_reason,
             user_id):
@@ -325,39 +325,39 @@ class Book():
 
                         connection.commit()
 
-                # Insertar copias
-                if copies < 0:
-                    return False, "La cantidad de copias a añadir debe ser un número positivo o 0 si no desea añadir copias.", []
+                # # Insertar copias
+                # if copies < 0:
+                    # return False, "La cantidad de copias a añadir debe ser un número positivo o 0 si no desea añadir copias.", []
 
-                elif copies >= 0:
-                    # Buscar el último `copy_code` existente para este book_id
-                    cursor.execute(
-                        "SELECT copy_code FROM copy WHERE book_id = ?", (book_id,))
-                    row = cursor.fetchall()
-                    last_copy_code = row[-1][0]
+                # elif copies >= 0:
+                    # # Buscar el último `copy_code` existente para este book_id
+                    # cursor.execute(
+                        # "SELECT copy_code FROM copy WHERE book_id = ?", (book_id,))
+                    # row = cursor.fetchall()
+                    # last_copy_code = row[-1][0]
 
-                    # Extraer el índice
-                    last_copy_code_split = last_copy_code.split('-')
-                    count_base = last_copy_code_split[-1]
-                    count_base_int = int(count_base)
+                    # # Extraer el índice
+                    # last_copy_code_split = last_copy_code.split('-')
+                    # count_base = last_copy_code_split[-1]
+                    # count_base_int = int(count_base)
 
-                    # Añadir copias
-                    for i in range(copies):
-                        sum = count_base_int + i + 1
-                        sum_str = str(sum)
+                    # # Añadir copias
+                    # for i in range(copies):
+                        # sum = count_base_int + i + 1
+                        # sum_str = str(sum)
 
-                        new_copy_code = f"{isbn}-{sum_str}"
+                        # new_copy_code = f"{isbn}-{sum_str}"
 
-                        list_copy_code.append(new_copy_code)
+                        # list_copy_code.append(new_copy_code)
 
-                        cursor.execute(
-                            "INSERT INTO copy (book_id, isbn, copy_code, status_loan, unavailable_reason, user_id) VALUES (?, ?, ?, ?, ?, ?)",
-                            (book_id,
-                             isbn,
-                             new_copy_code,
-                             STATUS_LOAN_AVAILABLE,
-                             inactive_reason,
-                             user_id))
+                        # cursor.execute(
+                            # "INSERT INTO copy (book_id, isbn, copy_code, status_loan, unavailable_reason, user_id) VALUES (?, ?, ?, ?, ?, ?)",
+                            # (book_id,
+                             # isbn,
+                             # new_copy_code,
+                             # STATUS_LOAN_AVAILABLE,
+                             # inactive_reason,
+                             # user_id))
 
                 # Extraer genre_id o ingresar un nuevo género si no existe
                 cursor.execute(

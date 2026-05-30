@@ -191,7 +191,6 @@ class TestBookModel(unittest.TestCase):
                         "Ficción Contemporánea",
                         "978-1",
                         "Alfaguara",
-                        1,
                         "Inactivo",
                         "Robo",
                         TEST_USER_ID]
@@ -213,63 +212,64 @@ class TestBookModel(unittest.TestCase):
         # "No disponible" el estado de las copias)
         self.assertEqual(libro_actualizado[3][0][2], "No disponible")
 
-    def test_continuidad_codigos_actualizacion(self):
-        ''' Asegura que al aumentar la cantidad de copias de un libro, los codigos de las nuevas copias mantienen la continuidad respecto de las copias existentes.'''
+    # TODO: Reactivar y adaptar este test cuandp se desarrolle el subformulario y la lógica de negocio para la gestipon individual de copias. 
+    # def test_continuidad_codigos_actualizacion(self):
+        # ''' Asegura que al aumentar la cantidad de copias de un libro, los codigos de las nuevas copias mantienen la continuidad respecto de las copias existentes.'''
 
-        # PREPARACIÓN: Insertar un libro manualmente para tener algo que
-        # actualizar
-        libro_datos = ["Rayuela",
-                       [("Julio",
-                         "Cortázar")],
-                       "Ficción Contemporánea",
-                       "978-1",
-                       "Alfaguara",
-                       2,
-                       STATUS,
-                       INACTIVE_REASON,
-                       TEST_USER_ID]
-        Book.add_book(*libro_datos)
+        # # PREPARACIÓN: Insertar un libro manualmente para tener algo que
+        # # actualizar
+        # libro_datos = ["Rayuela",
+                       # [("Julio",
+                         # "Cortázar")],
+                       # "Ficción Contemporánea",
+                       # "978-1",
+                       # "Alfaguara",
+                       # 2,
+                       # STATUS,
+                       # INACTIVE_REASON,
+                       # TEST_USER_ID]
+        # Book.add_book(*libro_datos)
 
-        # Buscar el ID en la DB por el ISBN del libro
-        conn = test_db_setup.get_test_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT book_id FROM book WHERE isbn = ?", ("978-1",))
-        row = cursor.fetchone()
-        generated_id = row[0]
-        conn.close()
+        # # Buscar el ID en la DB por el ISBN del libro
+        # conn = test_db_setup.get_test_connection()
+        # cursor = conn.cursor()
+        # cursor.execute("SELECT book_id FROM book WHERE isbn = ?", ("978-1",))
+        # row = cursor.fetchone()
+        # generated_id = row[0]
+        # conn.close()
 
-        # Act
-        nuevos_datos = [generated_id,
-                        "Rayuela",
-                        [("Julio",
-                          "Cortázar")],
-                        "Ficción Contemporánea",
-                        "978-1",
-                        "Alfaguara",
-                        4,
-                        STATUS,
-                        INACTIVE_REASON,
-                        TEST_USER_ID]
-        Book.update_book(*nuevos_datos)
+        # # Act
+        # nuevos_datos = [generated_id,
+                        # "Rayuela",
+                        # [("Julio",
+                          # "Cortázar")],
+                        # "Ficción Contemporánea",
+                        # "978-1",
+                        # "Alfaguara",
+                        # 4,
+                        # STATUS,
+                        # INACTIVE_REASON,
+                        # TEST_USER_ID]
+        # Book.update_book(*nuevos_datos)
 
-        # Assert
-        libro_actualizado = Book.get_book_by_id(generated_id)
+        # # Assert
+        # libro_actualizado = Book.get_book_by_id(generated_id)
 
-        # Verificar que ahora el total de copias sea 6
-        self.assertEqual(
-            len(libro_actualizado[3]), 6, "El número total de copias no es 4")
+        # # Verificar que ahora el total de copias sea 6
+        # self.assertEqual(
+            # len(libro_actualizado[3]), 6, "El número total de copias no es 4")
 
-        # Verificar la continuidad de los indices en los codigos de las nuevas
-        # copias
-        self.assertEqual(
-            libro_actualizado[3][2][1],
-            "978-1-3",
-            "El codigo de copia no es correcto")
+        # # Verificar la continuidad de los indices en los codigos de las nuevas
+        # # copias
+        # self.assertEqual(
+            # libro_actualizado[3][2][1],
+            # "978-1-3",
+            # "El codigo de copia no es correcto")
 
-        self.assertEqual(
-            libro_actualizado[3][3][1],
-            "978-1-4",
-            "El codigo de copia no es correcto")
+        # self.assertEqual(
+            # libro_actualizado[3][3][1],
+            # "978-1-4",
+            # "El codigo de copia no es correcto")
 
     def test_validacion_de_integridad(self):
         '''Confirma que el modelo devuelve False y su correspondiente mensaje de error,
@@ -316,7 +316,6 @@ class TestBookModel(unittest.TestCase):
                         "Ficción Contemporánea",
                         "978-1",
                         "Alfaguara",
-                        1,
                         "Inactivo",
                         "Robo",
                         TEST_USER_ID]
@@ -378,7 +377,7 @@ Verifica que si un libro pasa de estado "Inactivo" a "Activo" todas sus copias s
         generated_id = row[0]
         conn.close()
         
-        # Actualizar el libro pasando su estatus a "Inactivo"
+        # Actualizar el libro pasando su status a "Inactivo"
         nuevos_datos = [generated_id,
                         "Rayuela",
                         [("Julio",
@@ -386,7 +385,6 @@ Verifica que si un libro pasa de estado "Inactivo" a "Activo" todas sus copias s
                         "Ficción Contemporánea",
                         "978-1",
                         "Alfaguara",
-                        0,
                         "Inactivo",
                         "Robo",
                         TEST_USER_ID]
@@ -400,7 +398,6 @@ Verifica que si un libro pasa de estado "Inactivo" a "Activo" todas sus copias s
                         "Ficción Contemporánea",
                         "978-1",
                         "Alfaguara",
-                        0,
                         STATUS,
                         INACTIVE_REASON,
                         TEST_USER_ID]
