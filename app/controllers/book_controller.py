@@ -227,6 +227,13 @@ def update_book(
 
         return {"estado": "ok", "mensaje": final_message}
 
+def check_data_changes(original_data, data_to_validate):
+    
+    if original_data == data_to_validate:
+        return {"estado": "sin cambios", "mensaje": "No se detectaron cambios para actualizar."}
+    else:
+                return {"estado": "con cambios", "mensaje": "Se detectaron cambios para actualizar."}
+
 
 def advertise_change_status(selected_status, widget):
     """

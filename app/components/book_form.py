@@ -3,7 +3,6 @@ from tkinter import ttk
 from tkinter import messagebox
 from controllers import book_controller, genre_controller
 
-
 class BookForm(Toplevel):
 
     """
@@ -58,6 +57,17 @@ class BookForm(Toplevel):
             columnspan=2,
             pady=10,
             sticky="nsew")
+
+        self.original_data = {
+            "title": self.book_title,
+            "authors": [(self.author_firstname, self.author_lastname)],
+            "genre": self.genre,
+            "isbn": self.isbn,
+            "publisher": self.publisher,
+            "type_form": self.type_form,
+            "status": self.status,
+            "inactive_reason": '---' if self.status == 'Activo' else self.inactive_reason
+        }
 
         self.book_title_label = Label(container, text="Título:")
         self.book_title_label.grid(row=1, column=0, pady=10, sticky="w")
@@ -274,9 +284,16 @@ class BookForm(Toplevel):
                 self.destroy()
 
         if self.type_form == "edit_book_form":
-                                                
+            
+            result_check_changes = book_controller.check_data_changes(self.original_data, data_to_validate)
+            
+            if result_check_changes["estado"] == "sin cambios":
+                messagebox.showinfo("Mensaje", result_check_changes["mensaje"])
+                self.grab_release()
+                self.destroy()
+                return
+                                               
             if data_to_validate["status"] != self.status:
-                
                 
                 result_advertise = book_controller.advertise_change_status(data_to_validate["status"], "edit_button")
                 

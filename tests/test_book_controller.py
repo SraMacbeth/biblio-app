@@ -213,6 +213,43 @@ class TestBookController(unittest.TestCase):
             exito["mensaje"],
             "El ISBN ingresado ya pertenece a otro libro.")
 
+    def test_proteccion_db_sin_cambios_edicion(self):
+        
+        """
+        Asegura que el modelo no sea invocado si no se realizan cambios en el formulario de edición.
+        """
+        
+        # PREPARACIÓN:
+        # Diccionario con los datos originales del libro
+        original_data = {
+            'title': 'qwerty', 
+            'authors': [('qwerty', 'qwerty')], 
+            'genre': 'Terror', 
+            'isbn': '12345678', 
+            'publisher': 'qwerty', 
+            'type_form': 'edit_book_form', 
+            'status': 'Inactivo', 
+            'inactive_reason': 'Pérdida'
+        }
+
+        # Diccionario con los datos del libro enviados desde el formulario de edición
+        data_to_validate = {
+            'title': 'qwerty', 
+            'authors': [('qwerty', 'qwerty')], 
+            'genre': 'Terror', 
+            'isbn': '12345678', 
+            'publisher': 'qwerty', 
+            'type_form': 'edit_book_form', 
+            'status': 'Inactivo', 
+            'inactive_reason': 'Pérdida'
+        }
+        
+        # Act
+        exito = book_controller.check_data_changes(original_data, data_to_validate)
+
+        # Assert
+        self.assertEqual(exito['estado'], "sin cambios", "El controlador debería reportar que no hay cambios si los diccionaris son idénticos")
+
     # def test_traer_todo_el_inventario(self):
         # """
         # Verifica que la función de búsqueda global devuelve todos los libros cargados en la base de datos en el formato correcto para ser mostrados en la vista.

@@ -22,7 +22,7 @@
 
 * [X] **Validación Decisoria y Guardado:**  Validar si existen modificaciones efectivas en el formulario antes de procesar la actualización.
 
-* [ ] **Optimización de Cambios Reales:** Validar si existen modificaciones efectivas en el formulario antes de procesar la actualización.
+* [X] **Optimización de Cambios Reales:** Validar si existen modificaciones efectivas en el formulario antes de procesar la actualización.
 > *​Nota: Incluye creación de test automatizado de flujo de control.*
 
 * [ ] **Formulario de Gestión de Copias (Toplevel):** Crear ventana independiente para administración de ejemplares con lógica de reactivación automática del libro al añadir stock.
