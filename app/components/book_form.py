@@ -26,7 +26,8 @@ class BookForm(Toplevel):
             publisher="",
             copies_data="",
             status="", 
-            inactive_reason=""):
+            inactive_reason="",
+            callback_refresh = ""):
         super().__init__(parent)
         self.form_title = form_title
         self.controller = controller
@@ -42,9 +43,11 @@ class BookForm(Toplevel):
         self.copies_data = copies_data
         self.status = status
         self.inactive_reason = inactive_reason
+        self.callback_refresh = callback_refresh
 
         self.title(self.form_title)
         self.resizable(False, False)
+        self.protocol("WM_DELETE_WINDOW", self.on_closing)
         container = Frame(self)
         container.grid(row=0, column=1, padx=20, pady=20)
 
@@ -230,7 +233,7 @@ class BookForm(Toplevel):
             else:
                 messagebox.showinfo("Exito", result_update["mensaje"])
                 self.grab_release()
-                self.destroy()
+                self.on_closing()
 
     def open_copies_form(self):
 
@@ -265,4 +268,8 @@ class BookForm(Toplevel):
         self.status_entry.insert(0, new_status)
         self.status_entry.config(state="readonly")
 
-            
+    def on_closing(self):
+        if self.callback_refresh:
+            self.callback_refresh()
+        
+        self.destroy()

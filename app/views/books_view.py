@@ -51,12 +51,9 @@ class BooksView(BaseView):
         self.new_book_button.grid(row=3, column=0, columnspan=4, pady=10)
 
         self.main_area.grid_columnconfigure(0, weight=1)
-
-    def clean_entries(self, entry):
-        entry.delete(0, END)
-
+        
     def search(self):
-
+        
         self.search_result_container.clear_result_frame()
 
         book_id = self.search_bar.get_search_text()
@@ -86,7 +83,6 @@ class BooksView(BaseView):
             isbn = data[5]
             publisher = data[6]
             status = data[7]
-            #inactive_reason = data[8]
             total_copies = data[11]
             available_copies = data[11]
 
@@ -99,6 +95,8 @@ class BooksView(BaseView):
                 status,
                 total_copies,
                 available_copies]
+                
+            print(treeview_values)
 
             self.search_result_container.result_treeview.insert(
                 parent='', index='end', values=treeview_values)
@@ -114,7 +112,6 @@ class BooksView(BaseView):
             self.action_button_container.grid()
             self.edit_button.config(state=NORMAL)
 
-            # self.clean_entries(self.search_bar.search_bar_entry)
         else:
             self.clean_entries(self.search_bar.search_bar_entry)
             self.search_result_container.result_label.config(
@@ -161,10 +158,12 @@ class BooksView(BaseView):
             publisher=publisher,
             status=status,
             inactive_reason=inactive_reason,
-            copies_data=copies_data)
+            copies_data=copies_data,
+            callback_refresh = self.search)
 
         edit_book_form.transient(self)
 
         edit_book_form.grab_set()
 
         self.wait_window(edit_book_form)
+        
