@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
+from components.copies_form import CopiesForm
 from controllers import book_controller, genre_controller
 
 class BookForm(Toplevel):
@@ -43,7 +44,6 @@ class BookForm(Toplevel):
         self.inactive_reason = inactive_reason
 
         self.title(self.form_title)
-        # self.geometry("500x500")
         self.resizable(False, False)
         container = Frame(self)
         container.grid(row=0, column=1, padx=20, pady=20)
@@ -137,78 +137,18 @@ class BookForm(Toplevel):
 
             self.status_label = Label(container, text="Estado:")
             self.status_label.grid(row=7, column=0, pady=10, sticky="w")
-
-            self.selected_status = StringVar(value=self.status)
-
-            self.status_selector = ttk.Combobox(
-                container, textvariable=self.selected_status, values=[
-                    "Activo", "Inactivo"], state="readonly")
-            self.status_selector.set(self.status)
-            self.status_selector.grid(row=7, column=1, pady=10, sticky="w")
-
-            self.inactive_reason_selector_visibility = self.status_selector.bind(
-                '<<ComboboxSelected>>', lambda e: self.toggle_reason_visibility())
-
-            self.inactive_reason_label = Label(container, text="Motivo de inactivación:")
             
-            self.selected_inactive_reason = StringVar(value=self.inactive_reason)
-
-            self.inactive_reason_selector = ttk.Combobox(
-                container, textvariable=self.selected_inactive_reason, values=[
-                    "Dañado", "En reparación", "Donación", "Descatalogado", "Pérdida", "Robo"], state="readonly")
+            self.status_entry = Entry(container, relief="flat")
+            self.status_entry.insert(0, self.status)
+            self.status_entry.config(state="readonly")
+            self.status_entry.grid(row=7, column=1, pady=10, sticky="w")
             
-            self.selected_inactive_reason.set(self.inactive_reason)
-            
-            self.toggle_reason_visibility()
-            """
-			self.copies_label = Label(container, text="Copias a añadir:")
-			self.copies_label.grid(row=8, column=0, pady=10, sticky="w")
-
-			self.copies_entry = Entry(container)
-			self.copies_entry.insert(0, 0)
-			self.copies_entry.grid(row=8, column=1, pady=10, sticky="w")
-
-			self.xscrollbar_treeview = ttk.Scrollbar(container, orient=HORIZONTAL)
-
-			self.treeview_columns = ("ID", "Código", "Estado", "Observaciones")
-
-			self.copies_treeview = ttk.Treeview(container, columns=self.treeview_columns, show='headings', height=1, xscrollcommand=self.xscrollbar_treeview.set)
-
-			self.xscrollbar_treeview.config(command=self.copies_treeview.xview)
-
-			self.copies_treeview.bind('<Button-1>', self.block_resizing, add='+')
-
-			self.copies_treeview.grid(row=9, column=0, columnspan=2, sticky="w")
-
-			self.copies_treeview.heading("ID", text="ID")
-			self.copies_treeview.column("ID", width=0, minwidth=50, stretch=False, anchor="center")
-
-			self.copies_treeview.heading("Código", text="Código")
-			self.copies_treeview.column("Código", width=230, minwidth=230, stretch=False, anchor="center")
-
-			self.copies_treeview.heading("Estado", text="Estado")
-			self.copies_treeview.column("Estado", width=120, minwidth=120, stretch=False, anchor="center")
-
-			self.copies_treeview.heading("Observaciones", text="Observaciones")
-			self.copies_treeview.column("Observaciones", width=120, minwidth=120, stretch=False, anchor="center")
-
-			self.existing_copies = self.copies_data
-
-			treeview_values = [row for row in self.existing_copies] if self.existing_copies else []
-
-			total_filas = len(treeview_values)
-			self.copies_treeview.config(height=max(1, total_filas))
-
-			for i in treeview_values:
-				self.copies_treeview.insert(parent='', index='end', values=i)
-			"""
-
             self.top_separator = ttk.Separator(container)
             self.top_separator.grid(
                 row=9, column=0, columnspan=2, pady=10, sticky="ew")
 
             self.manage_copies_button = Button(
-                container, text="Gestionar copias")
+                container, text="Gestionar copias", command=self.open_copies_form)
             self.manage_copies_button.grid(
                 row=10, column=0, columnspan=2, pady=20)
 
@@ -227,20 +167,6 @@ class BookForm(Toplevel):
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure(2, weight=1)
 
-
-    def toggle_reason_visibility(self, *args):
-        
-        if self.status_selector.get() == "Activo":
-            self.inactive_reason_label.grid_remove()
-            self.inactive_reason_selector.grid_remove()
-            self.selected_inactive_reason.set("")
-        else:
-            self.inactive_reason_label.grid(row=8, column=0, pady=10, sticky="w")
-            self.inactive_reason_selector.grid(row=8, column=1, pady=10, sticky="w")
-
-    def block_resizing(self, event):
-        return "break"
-
     def validate_and_save(self):
         
         data_to_validate = {
@@ -255,10 +181,6 @@ class BookForm(Toplevel):
             
         if self.type_form == "new_book_form":
             data_to_validate["copies"] = self.copies_entry.get()
-            
-        if self.type_form == "edit_book_form":
-            data_to_validate["status"] = self.selected_status.get(),
-            data_to_validate["inactive_reason"] = self.selected_inactive_reason.get()
                             
         validate_response = book_controller.validate_fields_form(data_to_validate)
        
@@ -293,24 +215,13 @@ class BookForm(Toplevel):
                 self.destroy()
                 return
                                                
-            if data_to_validate["status"] != self.status:
-                
-                result_advertise = book_controller.advertise_change_status(data_to_validate["status"], "edit_button")
-                
-                response_advertise = messagebox.askokcancel("Advertencia", result_advertise["mensaje"])
-                
-                if response_advertise == False:
-                    return
-                
             result_update = book_controller.update_book(
                             self.book_id,
                             data_to_validate["title"],
                             data_to_validate["authors"],
                             data_to_validate["genre"],
                             data_to_validate["isbn"],
-                            data_to_validate["publisher"],
-                            data_to_validate["status"],
-                            data_to_validate["inactive_reason"])
+                            data_to_validate["publisher"])
                 
             if result_update["estado"] == "error":
                 messagebox.showerror("Error", result_update["mensaje"])
@@ -320,3 +231,38 @@ class BookForm(Toplevel):
                 messagebox.showinfo("Exito", result_update["mensaje"])
                 self.grab_release()
                 self.destroy()
+
+    def open_copies_form(self):
+
+        result = book_controller.search_book_by_id(self.book_id)
+
+        if result["estado"] == "ok":
+            id_book, title, author_firstname, author_lastname, genre, isbn, publisher, status, inactive_reason, copies_data, total_copies, available_copies = result[
+                "detalles"]
+
+        copies_form = CopiesForm(
+            "Gestión de copias",
+            parent=self,
+            controller=self,
+            type_form="copies_form",
+            book_id=id_book,
+            isbn=isbn,
+            status=status,
+            copies_data=copies_data,
+            callback_refresh=self.refresh_book_status)
+
+        copies_form.transient(self)
+
+        copies_form.grab_set()
+
+        self.wait_window(copies_form)
+    
+    def refresh_book_status(self):
+        result = book_controller.search_book_by_id(self.book_id)
+        new_status = result["detalles"][7]
+        self.status_entry.config(state="normal")
+        self.status_entry.delete(0, END)
+        self.status_entry.insert(0, new_status)
+        self.status_entry.config(state="readonly")
+
+            

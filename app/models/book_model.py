@@ -1,12 +1,7 @@
 import sqlite3
 from . import db
 
-STATUS_LOAN_AVAILABLE = "Disponible"
-STATUS_LOAN_LOANED = "Prestado"
-STATUS_LOAN_UNAVAILABLE = "No disponible"
-STATUS = "Activo"
-INACTIVE_REASON = ""
-
+CURRENT_USER_ID = 1
 
 class Book():
 
@@ -91,7 +86,8 @@ class Book():
                     return book
 
         except sqlite3.Error as e:
-            print(e)
+            #print(e)
+            return False, str(e)
 
     @classmethod
     def add_book(
@@ -131,8 +127,7 @@ class Book():
                 cursor.execute("SELECT * FROM book WHERE isbn = ?", (isbn,))
 
                 if cursor.fetchone():
-                    return False, f"El libro que intenta ingresar ISBN {isbn} ya se encuentra en la base de datos. \nUse el formulario de Edición para ajustar la cantidad de copias.", [
-                    ]
+                    return False, f"El libro que intenta ingresar ISBN {isbn} ya se encuentra en la base de datos. \nUse el formulario de Edición para ajustar la cantidad de copias.", []
 
                 else:
 
@@ -200,8 +195,8 @@ class Book():
                             (book_id,
                              isbn,
                              copy_code,
-                             STATUS_LOAN_AVAILABLE,
-                             INACTIVE_REASON,
+                             "Disponible",
+                             "---",
                              user_id))
 
                     connection.commit()
@@ -209,8 +204,8 @@ class Book():
                     return True, "Libro ingresado exitosamente.", list_copy_code
 
         except sqlite3.Error as e:
-            print(f"\n--- ERROR DE SQLITE EN ADD_BOOK: {e} ---")
-            return False
+            #print(f"\n--- ERROR DE SQLITE EN ADD_BOOK: {e} ---")
+            return False, str(e)
 
     @classmethod
     def update_book(
@@ -221,9 +216,6 @@ class Book():
             genre,
             isbn,
             publisher,
-            #copies,
-            status,
-            inactive_reason,
             user_id):
         """
         Actualiza los datos de un libro existente en la base de datos
@@ -234,9 +226,6 @@ class Book():
         genre(str) género al que pertenece el libro
         isbn(int) isbn del libro
         publisher(str) editorial
-        copies(str) cantidad de copias ingresadas
-        status(str) estado inicial del libro en el inventario
-        inactive_reason(str) motivo de inactividad del libro
         user_id(int) id del usuario que ingresó el libro
         """
 
@@ -254,42 +243,6 @@ class Book():
 
                 if row:
                     return False, "El ISBN ingresado ya pertenece a otro libro.", []
-
-                # Validacion previa a la actualizacion para verificar el estado de las copias del libro antes de intentar pasarlo a Inactivo.
-                # Regla de integridad: un libro no puede estar inactivo si
-                # tiene copias prestadas
-                if status == "Inactivo":
-
-                    # Cuenta la cantidad de copias prestadas
-                    cursor.execute(
-                        "SELECT * FROM copy WHERE book_id = ? AND status_loan = ?;",
-                        (book_id,
-                         STATUS_LOAN_LOANED))
-
-                    loaned_copies = cursor.fetchall()
-
-                    loaned_copies_number = len(loaned_copies)
-
-                    if loaned_copies_number > 0:
-                        return False, "No es posible inactivar un libro que posee copias prestadas. Revise el estado del libro que intenta actualizar o gestione las copias en la sección de Préstamos y Devoluciones.", []
-
-                # Activar un libro que se encuentra Inactivo
-                # Se consulta el estado actual del libro
-                cursor.execute(
-                    "SELECT status FROM book WHERE book_id = ?", (book_id,))
-
-                row = cursor.fetchone()
-
-                actual_status = row[0]
-
-                if status == "Activo" and actual_status == "Inactivo":
-                    # Automaticamente todas sus copias se ponen como
-                    # "Disponible" y se limpia el valor de unavailable_reason
-                    cursor.execute(
-                        "UPDATE copy set status_loan = ?, unavailable_reason = ? WHERE book_id = ?",
-                        (STATUS_LOAN_AVAILABLE,
-                         inactive_reason,
-                         book_id))
 
                 # Lista para guardar los copy_code que se mostrarán al usuario
                 list_copy_code = []
@@ -325,40 +278,6 @@ class Book():
 
                         connection.commit()
 
-                # # Insertar copias
-                # if copies < 0:
-                    # return False, "La cantidad de copias a añadir debe ser un número positivo o 0 si no desea añadir copias.", []
-
-                # elif copies >= 0:
-                    # # Buscar el último `copy_code` existente para este book_id
-                    # cursor.execute(
-                        # "SELECT copy_code FROM copy WHERE book_id = ?", (book_id,))
-                    # row = cursor.fetchall()
-                    # last_copy_code = row[-1][0]
-
-                    # # Extraer el índice
-                    # last_copy_code_split = last_copy_code.split('-')
-                    # count_base = last_copy_code_split[-1]
-                    # count_base_int = int(count_base)
-
-                    # # Añadir copias
-                    # for i in range(copies):
-                        # sum = count_base_int + i + 1
-                        # sum_str = str(sum)
-
-                        # new_copy_code = f"{isbn}-{sum_str}"
-
-                        # list_copy_code.append(new_copy_code)
-
-                        # cursor.execute(
-                            # "INSERT INTO copy (book_id, isbn, copy_code, status_loan, unavailable_reason, user_id) VALUES (?, ?, ?, ?, ?, ?)",
-                            # (book_id,
-                             # isbn,
-                             # new_copy_code,
-                             # STATUS_LOAN_AVAILABLE,
-                             # inactive_reason,
-                             # user_id))
-
                 # Extraer genre_id o ingresar un nuevo género si no existe
                 cursor.execute(
                     "SELECT genre_id FROM genre WHERE name = ?", (genre,))
@@ -374,14 +293,12 @@ class Book():
 
                 # Actualizar libro con los datos proporcionados
                 cursor.execute(
-                    "UPDATE book set isbn = ?, title = ?, publisher = ?, genre_id = ?, user_id = ?, status = ?, inactive_reason = ? WHERE book_id = ?",
+                    "UPDATE book set isbn = ?, title = ?, publisher = ?, genre_id = ?, user_id = ? WHERE book_id = ?",
                     (isbn,
                      title,
                      publisher,
                      genre_id,
                      user_id,
-                     status,
-                     inactive_reason,
                      book_id))
 
                 # Resetear las asociaciones de libro-autor en la tabla
@@ -412,24 +329,137 @@ class Book():
                         (book_id,
                          author_id))
 
-                # Si el usuario quiere pasar el libro a estado inactivo,
-                # automaticamente todas sus copias se ponen como "No
-                # disponible"
-                if status == "Inactivo":
-                    cursor.execute(
-                        "UPDATE copy set status_loan = ?, unavailable_reason = ? WHERE book_id = ?",
-                        (STATUS_LOAN_UNAVAILABLE,
-                         inactive_reason,
-                         book_id))
-
                 connection.commit()
 
                 return True, "Libro actualizado correctamente", list_copy_code
 
         except sqlite3.Error as e:
-            print(f"\n--- ERROR DE SQLITE EN UPDATE_BOOK: {e} ---")
-            return False, f"\n--- ERROR DE SQLITE EN UPDATE_BOOK: {e} ---"
+            #print(f"\n--- ERROR DE SQLITE EN UPDATE_BOOK: {e} ---")
+            return False,  f"\n--- ERROR DE SQLITE EN UPDATE_BOOK: {e} ---"
 
+    @classmethod    
+    def update_copies(cls, book_id, isbn, book_status, copies_to_add):
+           
+        """
+        Añade cipos nuevas a un libro existente.
+        Parametros:
+        book_id(int) id del libro
+        isbn(int) isbn del libro
+        book_status(str) estado actual del libro
+        copies_to_add(int) cantidad de copias a añadir
+        """
+        
+        try:
+            with db.get_db_connection() as connection:
+                cursor = connection.cursor()
+        
+            # Insertar copias
+            if copies_to_add < 0:
+                return False, "La cantidad de copias a añadir debe ser un número positivo o 0 si no desea añadir copias.", []
+
+            if copies_to_add > 0:
+                # Buscar el último `copy_code` existente para este book_id
+                cursor.execute("SELECT copy_code FROM copy WHERE book_id = ?", (book_id,))
+                row = cursor.fetchall()
+                last_copy_code = row[-1][0]
+
+                # Extraer el índice
+                last_copy_code_split = last_copy_code.split('-')
+                count_base = last_copy_code_split[-1]
+                count_base_int = int(count_base)
+                
+                list_copy_code = []
+
+                # Añadir copias
+                for i in range(copies_to_add):
+                    sum = count_base_int + i + 1
+                    sum_str = str(sum)
+
+                    new_copy_code = f"{isbn}-{sum_str}"
+
+                    list_copy_code.append(new_copy_code)
+
+                    cursor.execute(
+                        "INSERT INTO copy (book_id, isbn, copy_code, status_loan, unavailable_reason, user_id) VALUES (?, ?, ?, ?, ?, ?)",
+                        (book_id,
+                        isbn,
+                        new_copy_code,
+                        "Disponible",
+                        "---",
+                        CURRENT_USER_ID))
+                
+                if book_status == "Inactivo":
+                    cursor.execute(
+                    "UPDATE book set status = ?, inactive_reason = ? WHERE book_id = ?",
+                    ("Activo",
+                    "---",
+                    book_id))
+
+            connection.commit()
+        
+            return True, "Copias añadidas correctamente.", list_copy_code
+
+        except sqlite3.Error as e:
+            return False, str(e)
+
+    @classmethod    
+    def update_copy(cls, book_id, copy_id, status_loan, unavailable_reason):
+                
+        """
+        Actualiza una copia individual de un libro.
+        Parametros:
+        book_id(int) id del libro
+        copy_id(int) id de la copia
+        status_loan(str) estado para préstamo de la copia
+        unavailable_reason(str) motivo de no disponibilidad de la copia
+        """    
+        
+        try:
+            with db.get_db_connection() as connection:
+                cursor = connection.cursor()
+                
+                # Actualizar la copia con los nuevos datos
+                cursor.execute(
+                    "UPDATE copy set status_loan = ?, unavailable_reason = ? WHERE copy_id = ?",
+                    (status_loan,
+                    unavailable_reason,
+                    copy_id))
+                                        
+                # Si hay, al menos, una copia con estado "Disponible" o "No disponible" pero con unavailable_reason "Prestado", el libro debe tener estado "Activo".
+                
+                # Obtener la cantidad de copias que determinan la condición de libro vivo.
+                cursor.execute(
+                        "SELECT COUNT (*) FROM copy WHERE book_id = ? AND (status_loan = ? OR unavailable_reason = ?)",
+                        (book_id,
+                        "Disponible",
+                        "Prestado"))
+                        
+                copies_active_book = cursor.fetchone()[0]
+     
+                if copies_active_book:
+                    
+                    cursor.execute(
+                        "UPDATE book set status = ?, inactive_reason = ? WHERE book_id = ?",
+                        ("Activo",
+                        "---",
+                        book_id))
+                
+                else:
+                    
+                    cursor.execute(
+                        "UPDATE book set status = ?, inactive_reason = ? WHERE book_id = ?",
+                        ("Inactivo",
+                        "Sin copias operativas",
+                        book_id))
+                    
+            connection.commit()
+        
+            return True, "Copia actualizada correctamente."
+
+        except sqlite3.Error as e:
+            return False, str(e)
+
+    @classmethod
     def get_all_books():
         """
         Devuelve todos los libros registrado en la base de datos.

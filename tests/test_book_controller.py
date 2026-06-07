@@ -204,7 +204,7 @@ class TestBookController(unittest.TestCase):
 
         # Act - Intentar editar el segundo libro poniéndole el ISBN del primero
         nuevos_datos_segundo_libro = [generated_id, "Las venas abiertas de América Latina", [
-            ("Eduardo", "Galeano")], "Ensayo", "978-1", "Siglo XXI Editores", STATUS, None]
+            ("Eduardo", "Galeano")], "Ensayo", "978-1", "Siglo XXI Editores"]
         exito = book_controller.update_book(*nuevos_datos_segundo_libro)
 
         # Assert
@@ -228,8 +228,6 @@ class TestBookController(unittest.TestCase):
             'isbn': '12345678', 
             'publisher': 'qwerty', 
             'type_form': 'edit_book_form', 
-            'status': 'Inactivo', 
-            'inactive_reason': 'Pérdida'
         }
 
         # Diccionario con los datos del libro enviados desde el formulario de edición
@@ -240,8 +238,6 @@ class TestBookController(unittest.TestCase):
             'isbn': '12345678', 
             'publisher': 'qwerty', 
             'type_form': 'edit_book_form', 
-            'status': 'Inactivo', 
-            'inactive_reason': 'Pérdida'
         }
         
         # Act
@@ -249,6 +245,223 @@ class TestBookController(unittest.TestCase):
 
         # Assert
         self.assertEqual(exito['estado'], "sin cambios", "El controlador debería reportar que no hay cambios si los diccionaris son idénticos")
+
+    def test_actualizar_copias_exitoso(self):
+        """
+        Verifica que al invocar update_copies desde el controlador con un ID válido 
+        y una cantidad de copias a agregar, este devuelva un diccionario con estado 'ok' 
+        y el formato esperado por la vista.
+        """
+        
+        # 1. PREPARACIÓN: Insertar un libro de prueba usando el controlador
+        datos_libro = ["Rayuela", [("Julio", "Cortázar")], "Ficción Contemporánea", "978-1", "Alfaguara", 1]
+        book_controller.add_book(*datos_libro)
+    
+        # Buscar el ID generado en la DB
+        conn = test_db_setup.get_test_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT book_id FROM book WHERE isbn = ?", ("978-1",))
+        generated_id = cursor.fetchone()[0]
+        conn.close()
+    
+        # 2. ACT: Llamar a la función del controlador pasando el ID, el ISBN, el estado actual ficticio y las nuevas copias a añadir
+        resultado = book_controller.update_copies(generated_id, "978-1", "Inactivo", 3)
+    
+        # 3. ASSERT: Comprobar la respuesta homogeneizada del controlador
+        self.assertEqual(resultado["estado"], "ok", f"El controlador falló: {resultado.get('mensaje')}")
+        self.assertIn("Tome nota de los códigos de copia generados por el sistema:", resultado["mensaje"])
+
+    def test_actualizar_copias_validacion_campo_vacio(self):
+        """
+        Verifica que se muestre el mensaje de error adecuado si el usuario no ingresa una cantidad de copias a añadir.
+        """
+        
+        # 1. PREPARACIÓN: Insertar un libro de prueba usando el controlador
+        datos_libro = ["Rayuela", [("Julio", "Cortázar")], "Ficción Contemporánea", "978-1", "Alfaguara", 1]
+        book_controller.add_book(*datos_libro)
+    
+        # Buscar el ID generado en la DB
+        conn = test_db_setup.get_test_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT book_id FROM book WHERE isbn = ?", ("978-1",))
+        generated_id = cursor.fetchone()[0]
+        conn.close()
+    
+        # 2. ACT: Llamar a la función del controlador pasando el ID, el ISBN, el estado actual ficticio y sin copias a añadir
+        resultado = book_controller.update_copies(generated_id, "978-1", "Inactivo", "")
+    
+        # 3. ASSERT: Comprobar el mensaje de error
+        self.assertEqual(resultado["estado"], "error", f"El controlador falló: {resultado.get('mensaje')}")
+        self.assertIn("Los campos no pueden estar vacíos", resultado["mensaje"])
+
+    def test_actualizar_copias_validacion_tipo_de_dato(self):
+        """
+        Verifica que se muestre el mensaje de error adecuado si el usuario ingresa un valor no númerico en el campo 'Ćopias a añadir'.
+        """
+        
+        # 1. PREPARACIÓN: Insertar un libro de prueba usando el controlador
+        datos_libro = ["Rayuela", [("Julio", "Cortázar")], "Ficción Contemporánea", "978-1", "Alfaguara", 1]
+        book_controller.add_book(*datos_libro)
+    
+        # Buscar el ID generado en la DB
+        conn = test_db_setup.get_test_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT book_id FROM book WHERE isbn = ?", ("978-1",))
+        generated_id = cursor.fetchone()[0]
+        conn.close()
+    
+        # 2. ACT: Llamar a la función del controlador pasando el ID, el ISBN, el estado actual ficticio y un valor no númerico para copias a añadir
+        resultado = book_controller.update_copies(generated_id, "978-1", "Inactivo", "ñ")
+    
+        # 3. ASSERT: Comprobar el mensaje de error
+        self.assertEqual(resultado["estado"], "error", f"El controlador falló: {resultado.get('mensaje')}")
+        self.assertIn("El campo 'Copias a añadir' solo acepta valores numéricos", resultado["mensaje"])
+
+    def test_actualizar_copias_validacion_cantidad_negativa(self):
+        """
+        Verifica que se muestre el mensaje de error adecuado si el usuario ingresa un valor nnegativo en el campo 'Ćopias a añadir'.
+        """
+        
+        # 1. PREPARACIÓN: Insertar un libro de prueba usando el controlador
+        datos_libro = ["Rayuela", [("Julio", "Cortázar")], "Ficción Contemporánea", "978-1", "Alfaguara", 1]
+        book_controller.add_book(*datos_libro)
+    
+        # Buscar el ID generado en la DB
+        conn = test_db_setup.get_test_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT book_id FROM book WHERE isbn = ?", ("978-1",))
+        generated_id = cursor.fetchone()[0]
+        conn.close()
+    
+        # 2. ACT: Llamar a la función del controlador pasando el ID, el ISBN, el estado actual ficticio y un valor no númerico para copias a añadir
+        resultado = book_controller.update_copies(generated_id, "978-1", "Inactivo", "-2")
+    
+        # 3. ASSERT: Comprobar el mensaje de error
+        self.assertEqual(resultado["estado"], "error", f"El controlador falló: {resultado.get('mensaje')}")
+        self.assertIn("La cantidad de copias a añadir debe ser un número positivo o 0 si no desea añadir copias", resultado["mensaje"])
+
+    def test_actualizar_copia_falla_si_falta_status_loan(self):
+        """
+        Verifica que se muestre el mensaje de error adecuado si no se envía un estado de préstamo para la copia..
+        """
+        
+        # 1. PREPARACIÓN: Insertar un libro de prueba usando el controlador
+        datos_libro = ["Rayuela", [("Julio", "Cortázar")], "Ficción Contemporánea", "978-1", "Alfaguara", 1]
+        book_controller.add_book(*datos_libro)
+    
+        # Buscar el ID del libro generado en la DB
+        conn = test_db_setup.get_test_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT book_id FROM book WHERE isbn = ?", ("978-1",))
+        generated_book_id = cursor.fetchone()[0]
+        conn.close()
+        
+        # Buscar el ID de la copia generada en la DB
+        conn = test_db_setup.get_test_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT copy_id FROM copy WHERE book_id = ?", (generated_book_id,))
+        generated_copy_id = cursor.fetchone()[0]
+        conn.close()
+        
+        # 2. ACT: Llamar a la función del controlador pasando el ID del libro, el ID de la copia, un motivo de no disponibilidad pero sin el estado para préstamo.  
+        resultado = book_controller.update_copy(generated_book_id, generated_copy_id, "", "Robo")
+    
+        # 3. ASSERT: Comprobar el mensaje de error
+        self.assertEqual(resultado["estado"], "error", f"El controlador falló: {resultado.get('mensaje')}")
+        self.assertIn("Los campos no pueden estar vacíos", resultado["mensaje"])
+
+    def test_actualizar_copia_falla_si_falta_unavailable_reason(self):
+        """
+        Verifica que se muestre el mensaje de error adecuado si no se envía un motivo de no disponibilidad para la copia.
+        """
+        
+        # 1. PREPARACIÓN: Insertar un libro de prueba usando el controlador
+        datos_libro = ["Rayuela", [("Julio", "Cortázar")], "Ficción Contemporánea", "978-1", "Alfaguara", 1]
+        book_controller.add_book(*datos_libro)
+    
+        # Buscar el ID del libro generado en la DB
+        conn = test_db_setup.get_test_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT book_id FROM book WHERE isbn = ?", ("978-1",))
+        generated_book_id = cursor.fetchone()[0]
+        conn.close()
+        
+        # Buscar el ID de la copia generada en la DB
+        conn = test_db_setup.get_test_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT copy_id FROM copy WHERE book_id = ?", (generated_book_id,))
+        generated_copy_id = cursor.fetchone()[0]
+        conn.close()
+        
+        # 2. ACT: Llamar a la función del controlador pasando el ID del libro, el ID de la copia, un estado para préstamo ficticio y sin motivo de no disponibilidad.  
+        resultado = book_controller.update_copy(generated_book_id, generated_copy_id, "No disponible", "")
+    
+        # 3. ASSERT: Comprobar el mensaje de error
+        self.assertEqual(resultado["estado"], "error", f"El controlador falló: {resultado.get('mensaje')}")
+        self.assertIn("Los campos no pueden estar vacíos", resultado["mensaje"])
+        
+    def test_actualizar_copia_falla_si_unavailable_reason_es_incorrecto(self):
+        """
+        Verifica que se muestre el mensaje de error adecuado si se envía "---" como motivo de no disponibilidad para la copia.
+        """
+        
+        # 1. PREPARACIÓN: Insertar un libro de prueba usando el controlador
+        datos_libro = ["Rayuela", [("Julio", "Cortázar")], "Ficción Contemporánea", "978-1", "Alfaguara", 1]
+        book_controller.add_book(*datos_libro)
+    
+        # Buscar el ID del libro generado en la DB
+        conn = test_db_setup.get_test_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT book_id FROM book WHERE isbn = ?", ("978-1",))
+        generated_book_id = cursor.fetchone()[0]
+        conn.close()
+        
+        # Buscar el ID de la copia generada en la DB
+        conn = test_db_setup.get_test_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT copy_id FROM copy WHERE book_id = ?", (generated_book_id,))
+        generated_copy_id = cursor.fetchone()[0]
+        conn.close()
+        
+        # 2. ACT: Llamar a la función del controlador pasando el ID del libro, el ID de la copia, un estado para préstamo ficticio y sin motivo de no disponibilidad.  
+        resultado = book_controller.update_copy(generated_book_id, generated_copy_id, "No disponible", "---")
+    
+        # 3. ASSERT: Comprobar el mensaje de error
+        self.assertEqual(resultado["estado"], "error", f"El controlador falló: {resultado.get('mensaje')}")
+        self.assertIn("Debe indicar un motivo de no disponibilidad para esta copia.", resultado["mensaje"])
+
+    def test_actualizar_copia_exito_al_pasar_a_disponible(self):
+        """
+        Verifica que se muestra el mensaje de éxito adecuado y se envía "---" como motivo de no disponibilidad cuando una copia recibe estado de préstamo ´Disponible'.
+        """
+        
+        # 1. PREPARACIÓN: Insertar un libro de prueba usando el controlador
+        datos_libro = ["Rayuela", [("Julio", "Cortázar")], "Ficción Contemporánea", "978-1", "Alfaguara", 1]
+        book_controller.add_book(*datos_libro)
+    
+        # Buscar el ID del libro generado en la DB
+        conn = test_db_setup.get_test_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT book_id FROM book WHERE isbn = ?", ("978-1",))
+        generated_book_id = cursor.fetchone()[0]
+        conn.close()
+        
+        # Buscar el ID de la copia generada en la DB
+        conn = test_db_setup.get_test_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT copy_id FROM copy WHERE book_id = ?", (generated_book_id,))
+        generated_copy_id = cursor.fetchone()[0]
+        conn.close()
+        
+        # Pasar la copia a estado "No disponible"
+        resultado = book_controller.update_copy(generated_book_id, generated_copy_id, "No disponible", "Robo")
+         
+        # 2. ACT: Llamar a la función del controlador pasando el ID del libro, el ID de la copia, un estado para préstamo "Disponible" y motivo de no disponibilidad "---".  
+        resultado = book_controller.update_copy(generated_book_id, generated_copy_id, "Disponible", "---")
+    
+        # 3. ASSERT: Comprobar el mensaje de éxito
+        self.assertEqual(resultado["estado"], "ok", f"El controlador falló: {resultado.get('mensaje')}")
+        self.assertIn("Copia actualizada correctamente.", resultado["mensaje"])
 
     # def test_traer_todo_el_inventario(self):
         # """

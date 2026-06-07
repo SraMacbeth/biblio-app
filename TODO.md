@@ -25,7 +25,7 @@
 * [X] **Optimización de Cambios Reales:** Validar si existen modificaciones efectivas en el formulario antes de procesar la actualización.
 > *​Nota: Incluye creación de test automatizado de flujo de control.*
 
-* [ ] **Formulario de Gestión de Copias (Toplevel):** Crear ventana independiente para administración de ejemplares con lógica de reactivación automática del libro al añadir stock.
+* [X] **Formulario de Gestión de Copias (Toplevel):** Crear ventana independiente para administración de ejemplares con lógica de reactivación automática del libro al añadir stock.
 > *​Nota: Incluye creación de test automatizado de reglas de inventario.*
 
 * [ ] **Gran Refactor de Libros:** Limpieza de código, eliminación de comentarios obsoletos y estandarización de nombres de variables en el CRUD de libros.
@@ -78,7 +78,7 @@
 * [ ] **Múltiples Autores:** Rediseñar el modelo y la vista para permitir N autores por libro.
 * [ ] **Gestión de Autores:** Investigar y normalizar el manejo de autores con un solo nombre (ej. Osho, Anónimo).
 📋 Backlog (Versiones Futuras / Fase 3)
-* [ ] **Gestión Individual de Copias:** Botón de edición por fila en el formulario de libro para cambiar estados puntuales (Dañado, Extraviado, etc.).
+* [X] **Gestión Individual de Copias:** Botón de edición por fila en el formulario de libro para cambiar estados puntuales (Dañado, Extraviado, etc.).
 * [ ] **Buscador Avanzado:** Implementar un buscador dinámico con filtros avanzados (por autor, por género, título o ISBN, con búsqueda predictiva). Implementar el "Doble clic para editar" (paso de parámetros entre ventanas).
 * [ ] **Validación de ISBN:** Implementar Regex para asegurar el formato estándar de 13 dígitos.
 * [ ] **Carga de Imágenes:** Permitir vincular una ruta de imagen para la portada del libro.

@@ -1,13 +1,16 @@
 import re
 
 try:
-    from app.models.book_model import Book, STATUS, INACTIVE_REASON
+    from app.models.book_model import Book
 except ModuleNotFoundError as e:
-    from models.book_model import Book, STATUS,INACTIVE_REASON
+    from models.book_model import Book
 
 # TODO: Reemplazar por el ID del usuario logueado cuando el sistema de
 # login esté conectado
 CURRENT_USER_ID = 1
+
+STATUS = "Activo"
+INACTIVE_REASON = "---"
 
 
 def is_id_valid(book_id):
@@ -36,6 +39,8 @@ def search_book_by_id(book_id):
     """
     Permite buscar un libro según su ID.
     """
+
+    book_id = str(book_id)
 
     if book_id == "":
         return {
@@ -135,18 +140,7 @@ def validate_fields_form(data_to_validate):
                 return {
                     "estado": "error",
                     "mensaje": "La cantidad de copias a añadir debe ser un número positivo."}
-        
-        elif data_to_validate["type_form"] == "edit_book_form":
-            
-            data_to_validate["status"] = data_to_validate["status"][0]
-
-            if data_to_validate["status"] == "Inactivo" and data_to_validate["inactive_reason"] == "":
-                return {
-                "estado": "error",
-                "mensaje": "Los campos no pueden estar vacíos."}
-            if data_to_validate["status"] == "Activo":
-                data_to_validate["inactive_reason"] = "---"
-        
+                
         return {
             "estado": "ok",
             "mensaje": "Campos validados correctamente."}
@@ -191,8 +185,9 @@ def update_book(
         genre,
         isbn,
         publisher,
-        status,
-        inactive_reason):
+        #status,
+        #inactive_reason
+        ):
     """
     actualiza un libro existente en la base de datos
     Parametros:
@@ -208,7 +203,7 @@ def update_book(
     Retorna diferentes mensajes en funcion de los casos
     """
     success, message, copy_codes = Book.update_book(
-        book_id, title, authors, genre, isbn, publisher, status, inactive_reason, user_id=CURRENT_USER_ID)
+        book_id, title, authors, genre, isbn, publisher, user_id=CURRENT_USER_ID)
 
     final_message = message
 
@@ -227,43 +222,85 @@ def update_book(
 
         return {"estado": "ok", "mensaje": final_message}
 
+
 def check_data_changes(original_data, data_to_validate):
     
     if original_data == data_to_validate:
         return {"estado": "sin cambios", "mensaje": "No se detectaron cambios para actualizar."}
     else:
-                return {"estado": "con cambios", "mensaje": "Se detectaron cambios para actualizar."}
+        return {"estado": "con cambios", "mensaje": "Se detectaron cambios para actualizar."}
 
 
-def advertise_change_status(selected_status, widget):
-    """
-    Muestra el mensaje de advertencia que explica las consecuencias del cambio de estado de un libro
-    """
+def update_copies(book_id, isbn, book_status, copies_to_add):
     
-    copies_name = ""
+    if copies_to_add == "":
+        return { "estado": "error",
+                "mensaje": "Los campos no pueden estar vacíos."}
     
+    try:
+        int_copies_to_add = int(copies_to_add)
+    except ValueError:
+        return {
+            "estado": "error",
+            "mensaje": "El campo 'Copias a añadir' solo acepta valores numéricos."}
     
-    if selected_status == "Inactivo":
-            copies_name = "inactivas"
-    else:
-        copies_name = "activas"
-        
-    if widget == "edit_button":
-        return {"estado": "ok", "mensaje": f"¿Confirma el cambio de estado? \nTenga en cuenta que esta acción afectará a todas las copias del libro actual y las pondrá como {copies_name}."}
-
-def get_all_inventory():
-    """
-    Devuelve una lista con todos los libros del inventario.
-    No recibe parámetros
-    """
-    success, data = Book.get_all_books()
+    if int_copies_to_add < 0:
+        return {"estado": "error",
+                "mensaje": "La cantidad de copias a añadir debe ser un número positivo o 0 si no desea añadir copias."}
+    
+    if int_copies_to_add == 0:
+        return {"estado": "ok",
+                "mensaje": "No se detectaron cambios para actualizar."}
+            
+    success, message, copy_codes = Book.update_copies(book_id, isbn, book_status, int_copies_to_add)
+    
+    final_message = message
 
     if not success:
-        return {"estado": "error"}
+        return {"estado": "error", "mensaje": message}
     else:
-        list_book = []
-        for i in data:
-            i = list(i)
-            list_book.append(i)
+        if copy_codes:
 
-        return {"estado": "ok", "inventario": list_book}
+            final_message = message
+
+            header = "\n\nTome nota de los códigos de copia generados por el sistema:\n"
+
+            formatted_list = format_copy_codes(copy_codes)
+
+            final_message += header + formatted_list
+
+        return {"estado": "ok", "mensaje": final_message}
+ 
+def update_copy(book_id, copy_id, status_loan, unavailable_reason):
+
+    if status_loan == "" or unavailable_reason == "":
+        return { "estado": "error",
+                "mensaje": "Los campos no pueden estar vacíos."}
+                
+    if status_loan == "No disponible" and unavailable_reason == "---":
+        return { "estado": "error",
+                "mensaje": "Debe indicar un motivo de no disponibilidad para esta copia."}
+    
+    success, message = Book.update_copy(book_id, copy_id, status_loan, unavailable_reason)
+    
+    if not success:
+        return {"estado": "error", "mensaje": message}
+    else:
+        return {"estado": "ok", "mensaje": message}
+
+# def get_all_inventory():
+    # """
+    # Devuelve una lista con todos los libros del inventario.
+    # No recibe parámetros
+    # """
+    # success, data = Book.get_all_books()
+
+    # if not success:
+        # return {"estado": "error"}
+    # else:
+        # list_book = []
+        # for i in data:
+            # i = list(i)
+            # list_book.append(i)
+
+        # return {"estado": "ok", "inventario": list_book}

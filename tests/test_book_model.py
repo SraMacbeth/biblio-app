@@ -67,10 +67,10 @@ class TestBookModel(unittest.TestCase):
                            TEST_USER_ID]
 
         # Act: Intentamos insertar
-        exito = Book.add_book(*libro_a_agregar)
+        exito, mensaje, copy_codes = Book.add_book(*libro_a_agregar)
 
         # Asert
-        self.assertTrue(exito, "La inserción falló")
+        self.assertTrue(exito, f"La operación falló con el error: {mensaje}")
 
         # Verificacion de codigos
         # Buscar el ID del libro en la DB por su ISBN
@@ -190,9 +190,7 @@ class TestBookModel(unittest.TestCase):
                           "Cortázar")],
                         "Ficción Contemporánea",
                         "978-1",
-                        "Alfaguara",
-                        "Inactivo",
-                        "Robo",
+                        "Alfaguara Editores",
                         TEST_USER_ID]
 
         # Act
@@ -201,90 +199,18 @@ class TestBookModel(unittest.TestCase):
         # Assert
         self.assertTrue(exito[0], "La actualizacion fallo.")
 
-        # Verificar el libro actualizado por su estado
-        libro_actualizado = Book.get_book_by_id(generated_id)
-        self.assertEqual(
-            libro_actualizado[0][6],
-            "Inactivo",
-            "El estado inicial no coincide")
+    def test_continuidad_codigos_actualizacion(self):
+        ''' Asegura que al aumentar la cantidad de copias de un libro, los codigos de las nuevas copias mantienen la continuidad respecto de las copias existentes.'''
 
-        # Verificar que también ocurrió la consecuencia lógica (se modifico a
-        # "No disponible" el estado de las copias)
-        self.assertEqual(libro_actualizado[3][0][2], "No disponible")
-
-    # TODO: Reactivar y adaptar este test cuandp se desarrolle el subformulario y la lógica de negocio para la gestipon individual de copias. 
-    # def test_continuidad_codigos_actualizacion(self):
-        # ''' Asegura que al aumentar la cantidad de copias de un libro, los codigos de las nuevas copias mantienen la continuidad respecto de las copias existentes.'''
-
-        # # PREPARACIÓN: Insertar un libro manualmente para tener algo que
-        # # actualizar
-        # libro_datos = ["Rayuela",
-                       # [("Julio",
-                         # "Cortázar")],
-                       # "Ficción Contemporánea",
-                       # "978-1",
-                       # "Alfaguara",
-                       # 2,
-                       # STATUS,
-                       # INACTIVE_REASON,
-                       # TEST_USER_ID]
-        # Book.add_book(*libro_datos)
-
-        # # Buscar el ID en la DB por el ISBN del libro
-        # conn = test_db_setup.get_test_connection()
-        # cursor = conn.cursor()
-        # cursor.execute("SELECT book_id FROM book WHERE isbn = ?", ("978-1",))
-        # row = cursor.fetchone()
-        # generated_id = row[0]
-        # conn.close()
-
-        # # Act
-        # nuevos_datos = [generated_id,
-                        # "Rayuela",
-                        # [("Julio",
-                          # "Cortázar")],
-                        # "Ficción Contemporánea",
-                        # "978-1",
-                        # "Alfaguara",
-                        # 4,
-                        # STATUS,
-                        # INACTIVE_REASON,
-                        # TEST_USER_ID]
-        # Book.update_book(*nuevos_datos)
-
-        # # Assert
-        # libro_actualizado = Book.get_book_by_id(generated_id)
-
-        # # Verificar que ahora el total de copias sea 6
-        # self.assertEqual(
-            # len(libro_actualizado[3]), 6, "El número total de copias no es 4")
-
-        # # Verificar la continuidad de los indices en los codigos de las nuevas
-        # # copias
-        # self.assertEqual(
-            # libro_actualizado[3][2][1],
-            # "978-1-3",
-            # "El codigo de copia no es correcto")
-
-        # self.assertEqual(
-            # libro_actualizado[3][3][1],
-            # "978-1-4",
-            # "El codigo de copia no es correcto")
-
-    def test_validacion_de_integridad(self):
-        '''Confirma que el modelo devuelve False y su correspondiente mensaje de error,
-        cuando se intenta pasar a "Inactivo" un libro que tiene al menos una copia con status_loan = 'Prestado'.'''
-
-        # PREPARACIÓN:
-
-        # Insertar un libro manualmente para tener algo que actualizar
+        # PREPARACIÓN: Insertar un libro manualmente para tener algo que
+        # actualizar
         libro_datos = ["Rayuela",
                        [("Julio",
                          "Cortázar")],
                        "Ficción Contemporánea",
                        "978-1",
                        "Alfaguara",
-                       1,
+                       2,
                        STATUS,
                        INACTIVE_REASON,
                        TEST_USER_ID]
@@ -298,76 +224,75 @@ class TestBookModel(unittest.TestCase):
         generated_id = row[0]
         conn.close()
 
-        # Cambiar manualmente el estado de una copia a "Prestado"
-        conn = test_db_setup.get_test_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            "UPDATE copy SET status_loan = ?, unavailable_reason = ? WHERE rowid IN (SELECT rowid FROM copy WHERE book_id = ? AND status_loan = 'Disponible')",
-            (STATUS_LOAN_LOANED,
-             "Préstamo",
-             generated_id))
-        conn.commit()
-
-        # Crear los nuevps datos del libro
-        nuevos_datos = [generated_id,
-                        "Rayuela",
-                        [("Julio",
-                          "Cortázar")],
-                        "Ficción Contemporánea",
-                        "978-1",
-                        "Alfaguara",
-                        "Inactivo",
-                        "Robo",
-                        TEST_USER_ID]
-
         # Act
-        exito = Book.update_book(*nuevos_datos)
+        nuevos_datos = [generated_id,
+                        "978-1",
+                        "Activo",
+                        4]
+        Book.update_copies(*nuevos_datos)
 
         # Assert
-        self.assertFalse(exito[0], exito[1])
+        libro_actualizado = Book.get_book_by_id(generated_id)
+
+        # Verificar que ahora el total de copias sea 6
+        self.assertEqual(
+            len(libro_actualizado[3]), 6, "El número total de copias no es 4")
+
+        # Verificar la continuidad de los indices en los codigos de las nuevas
+        # copias
+        self.assertEqual(
+            libro_actualizado[3][2][1],
+            "978-1-3",
+            "El codigo de copia no es correcto")
+
+        self.assertEqual(
+            libro_actualizado[3][3][1],
+            "978-1-4",
+            "El codigo de copia no es correcto")
 
     def test_validar_copia_mayor_a_cero(self):
+            '''
+        Verifica que si el modelo recibe un 0 en el número de copias al agregar un libro, devuelve el mensaje de error esperado.
         '''
-Verifica que si el modelo recibe un 0 en el número de copias al agregar un libro, devuelve el mensaje de error esperado.
-'''
+    
+        # PREPARACIÓN:
+        # Insertar un libro con 0 copias manualmente
+            datos_libro = ["Rayuela",
+                           [("Julio",
+                             "Cortázar")],
+                           "Ficción Contemporánea",
+                           "978-1",
+                           "Alfaguara",
+                           0,
+                           STATUS,
+                           INACTIVE_REASON,
+                           TEST_USER_ID]
+    
+            # Act
+            exito, mensaje, copy_codes = Book.add_book(*datos_libro)
+    
+            # Assert
+            self.assertFalse(exito, "El sistema permitió la operación cuando debería haber fallado.")
+            self.assertEqual(mensaje, "El libro ingresado debe tener al menos una copia.", "El mensaje de error no es el esperado.")
 
-    # PREPARACIÓN:
-    # Insertar un libro con 0 copias manualmente
-        datos_libro = ["Rayuela",
+    def test_agregar_copias_a_libro_inactivo_reactiva_libro(self):
+        """ 
+        Verifica que si un libro está Inactivo (porque no tenía stock), al añadir copias su estado pasa automáticamente a Activo y se limpia la razón de inactividad.
+        """
+        
+        # PREPARACIÓN: Insertar un libro manualmente para tener algo que actualizar
+        libro_datos = ["Rayuela",
                        [("Julio",
                          "Cortázar")],
                        "Ficción Contemporánea",
                        "978-1",
                        "Alfaguara",
-                       0,
-                       STATUS,
-                       INACTIVE_REASON,
+                       1,
+                       "Inactivo",
+                       "Robo",
                        TEST_USER_ID]
 
-        # Act
-        exito = Book.add_book(*datos_libro)
-
-        # Assert
-        self.assertFalse(exito[0], exito[1])
-
-    def test_de_reactivacion(self):
-        '''
-Verifica que si un libro pasa de estado "Inactivo" a "Activo" todas sus copias se vuelven disponibles y se resetea el unavailable_reason.
-'''
-
-    # PREPARACIÓN:
-    # Insertar un libro
-        datos_libro = ["Rayuela",
-                       [("Julio",
-                         "Cortázar")],
-                       "Ficción Contemporánea",
-                       "978-1",
-                       "Alfaguara",
-                       2,
-                       STATUS,
-                       INACTIVE_REASON,
-                       TEST_USER_ID]
-        Book.add_book(*datos_libro)
+        Book.add_book(*libro_datos)
 
         # Buscar el ID en la DB por el ISBN del libro
         conn = test_db_setup.get_test_connection()
@@ -377,46 +302,161 @@ Verifica que si un libro pasa de estado "Inactivo" a "Activo" todas sus copias s
         generated_id = row[0]
         conn.close()
         
-        # Actualizar el libro pasando su status a "Inactivo"
-        nuevos_datos = [generated_id,
-                        "Rayuela",
-                        [("Julio",
-                          "Cortázar")],
-                        "Ficción Contemporánea",
-                        "978-1",
-                        "Alfaguara",
-                        "Inactivo",
-                        "Robo",
-                        TEST_USER_ID]
-        Book.update_book(*nuevos_datos)
-
-        # Act: Reactivar el libro pasandolo a Activo
-        nuevos_datos_2 = [generated_id,
-                        "Rayuela",
-                        [("Julio",
-                          "Cortázar")],
-                        "Ficción Contemporánea",
-                        "978-1",
-                        "Alfaguara",
-                        STATUS,
-                        INACTIVE_REASON,
-                        TEST_USER_ID]
-        Book.update_book(*nuevos_datos_2)
+        # Act                
+        # Añadir nuevas copias a libro inactivo
         
-        # Extraer el status_loan y el unavailabre_reason de las copias luego de la
-        # actualizacion
-        conn = test_db_setup.get_test_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT status_loan, unavailable_reason FROM copy WHERE book_id = ?",
-            (generated_id,
-             ))
-        row = cursor.fetchone()
-        conn.close()
+        nuevos_datos = [generated_id,
+                        "978-1",
+                        "Inactivo",
+                        2]
+                        
+        exito, mensaje, copy_codes = Book.update_copies(*nuevos_datos)
+
+        # Asert
+        self.assertTrue(exito, f"La operación falló con el error: {mensaje}")
+
+        libro_actualizado = Book.get_book_by_id(generated_id)
 
         # Assert
+        # Verificar que el nuevo estado del libro sea Activo y su motivo de inactivación se haya limpiado
         self.assertEqual(
-            row[0],
-            "Disponible",
-            "El libro no se encuentra disponible")
-        self.assertEqual(row[1], "", "El libro tiene una observacion")
+            libro_actualizado[0][6],
+            "Activo",
+            "El nuevo estado debe ser Activo'.")
+        self.assertEqual(
+            libro_actualizado[0][7],
+            "---",
+            "El motivo de inactivación debe ser ´---'.")
+    
+    def test_actualizar_copia_exitosamente(self):
+        """Prueba que una copia existente se actualiza correctamente."""
+
+        # PREPARACIÓN: Insertar un libro manualmente para tener algo que
+        # # actualizar
+        libro_datos = ["Rayuela",
+                       [("Julio",
+                         "Cortázar")],
+                       "Ficción Contemporánea",
+                       "978-1",
+                       "Alfaguara",
+                       1,
+                       STATUS,
+                       INACTIVE_REASON,
+                       TEST_USER_ID]
+        Book.add_book(*libro_datos)
+
+        # Buscar el ID del libro en la DB por su ISBN
+        conn = test_db_setup.get_test_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT book_id FROM book WHERE isbn = ?", ("978-1",))
+        row = cursor.fetchone()
+        generated_book_id = row[0]
+        conn.close()
+        
+        # Buscar el ID de la copia generada en la DB usando el ID del libro
+        conn = test_db_setup.get_test_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT copy_id FROM copy WHERE book_id = ?", (generated_book_id,))
+        generated_copy_id = cursor.fetchone()[0]
+        conn.close()
+
+        # ACT: Llamar a la función del modelo pasando el ID del libro, el ID de la copia, un estado para préstamo "No disponible" y un motivo de no disponibilidad.  
+        success, message = Book.update_copy(generated_book_id, generated_copy_id, "No disponible", "Robo")
+    
+        # 3. ASSERT: Comprobar el mensaje de éxito
+        self.assertEqual(success, True, f"El modelo falló: {message}")
+        self.assertIn("Copia actualizada correctamente.", message)
+
+    def test_actualizar_copia_reactiva_libro_automaticamente(self):
+        """Prueba que un libro inactivo se reactiva automáticamnte si una de sus copias se actualiza con estado "Disponible"."""
+
+        # PREPARACIÓN: Insertar un libro manualmente como inactivo para tener algo que
+        # # actualizar
+        libro_datos = ["Rayuela",
+                       [("Julio",
+                         "Cortázar")],
+                       "Ficción Contemporánea",
+                       "978-1",
+                       "Alfaguara",
+                       1,
+                       "Inactivo",
+                       "Robo",
+                       TEST_USER_ID]
+        Book.add_book(*libro_datos)
+
+        # Buscar el ID del libro en la DB por su ISBN
+        conn = test_db_setup.get_test_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT book_id FROM book WHERE isbn = ?", ("978-1",))
+        row = cursor.fetchone()
+        generated_book_id = row[0]
+        conn.close()
+        
+        # Buscar el ID de la copia generada en la DB usando el ID del libro
+        conn = test_db_setup.get_test_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT copy_id FROM copy WHERE book_id = ?", (generated_book_id,))
+        generated_copy_id = cursor.fetchone()[0]
+        conn.close()
+
+        # ACT: Llamar a la función del modelo pasando el ID del libro, el ID de la copia, un estado para préstamo "Disponible" y un motivo de no disponibilidad "---".  
+        success, message = Book.update_copy(generated_book_id, generated_copy_id, "Disponible", "---")
+    
+        # ASSERT: 
+        # Consultar el nuevo estado del libro
+        conn = test_db_setup.get_test_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM book WHERE book_id = ?", (generated_book_id,))
+        book = cursor.fetchall()
+        conn.close()
+        
+        # Comprobar nuevo estado del libro
+        self.assertEqual(book[0][6], "Activo", f"El modelo falló: {message}")
+        self.assertEqual(book[0][7], "---", f"El modelo falló: {message}")
+        
+    def test_actualizar_copia_inactiva_libro_automaticamente(self):
+        """Prueba que un libro activo se inactiva automáticamnte si todas sus copias se actualizan con estado "No disponible"."""
+
+        # PREPARACIÓN: Insertar un libro manualmente para tener algo que
+        # # actualizar
+        libro_datos = ["Rayuela",
+                       [("Julio",
+                         "Cortázar")],
+                       "Ficción Contemporánea",
+                       "978-1",
+                       "Alfaguara",
+                       1,
+                       STATUS,
+                       INACTIVE_REASON,
+                       TEST_USER_ID]
+        Book.add_book(*libro_datos)
+
+        # Buscar el ID del libro en la DB por su ISBN
+        conn = test_db_setup.get_test_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT book_id FROM book WHERE isbn = ?", ("978-1",))
+        row = cursor.fetchone()
+        generated_book_id = row[0]
+        conn.close()
+        
+        # Buscar el ID de la copia generada en la DB usando el ID del libro
+        conn = test_db_setup.get_test_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT copy_id FROM copy WHERE book_id = ?", (generated_book_id,))
+        generated_copy_id = cursor.fetchone()[0]
+        conn.close()
+
+        # ACT: Llamar a la función del modelo pasando el ID del libro, el ID de la copia, un estado para préstamo "No oisponible" y un motivo de no disponibilidad válido.  
+        success, message = Book.update_copy(generated_book_id, generated_copy_id, "No disponible", "Robo")
+    
+        # ASSERT: 
+        # Consultar el nuevo estado del libro
+        conn = test_db_setup.get_test_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM book WHERE book_id = ?", (generated_book_id,))
+        book = cursor.fetchall()
+        conn.close()
+        
+        # Comprobar nuevo estado del libro
+        self.assertEqual(book[0][6], "Inactivo", f"El modelo falló: {message}")
+        self.assertEqual(book[0][7], "Sin copias operativas", f"El modelo falló: {message}")
