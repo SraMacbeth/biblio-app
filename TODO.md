@@ -28,17 +28,17 @@
 * [X] **Formulario de Gestión de Copias (Toplevel):** Crear ventana independiente para administración de ejemplares con lógica de reactivación automática del libro al añadir stock.
 > *​Nota: Incluye creación de test automatizado de reglas de inventario.*
 
-* [ ] **Gran Refactor de Libros:** Limpieza de código, eliminación de comentarios obsoletos y estandarización de nombres de variables en el CRUD de libros.
+* [X] **Gran Refactor de Libros:** Limpieza de código, eliminación de comentarios obsoletos y estandarización de nombres de variables en el CRUD de libros.
 
 ## 🟡 Fase 2: Expansión de Entidades (Flujo Principal)
 
 *Una vez que Libros es sólido, replicar el esquema en los otros pilares del sistema.*
 
-* [ ] **Búsqueda Global:**
-* [ ] Test de Integración: Diseñar la prueba para get_all_inventory (esperando lista de libros).
-* [ ] Modelo (book_model.py): Implementar get_all_books con SELECT y conteo de copias.
-* [ ] Controlador (book_controller.py): Conectar el retorno del modelo y formatear los datos para el Treeview.
-* [ ] Vista: Crear la pantalla de Inventario Total.
+* [X] **Búsqueda Global:**
+* [X] Test de Integración: Diseñar la prueba para get_all_inventory (esperando lista de libros).
+* [X] Modelo (book_model.py): Implementar get_all_books con SELECT y conteo de copias.
+* [X] Controlador (book_controller.py): Conectar el retorno del modelo y formatear los datos para el Treeview.
+* [X] Vista: Crear la pantalla de Inventario Total.
 
 * [ ] **Módulo de Socios (Members):**
 * [ ] Desarrollar CRUD completo (Modelo, Controlador, Vista).
@@ -70,10 +70,18 @@
 
 * ​[ ] **Gestión de Ventanas Modales:** Implementar WM_DELETE_WINDOW en la ventana principal para interceptar el cierre accidental mientras existan subformularios activos.
 
+* [ ] Ajustar redimensionamiento de pantallas en las vistas de Home.
+
+* [ ] Limpiar contenido de ventanas entre transiciones en el Login y entre las vistas de la Home.
+
+* [ ] En books_view cambiar el botón de editar por una columna llamada "Acción" con texto clickable y cursor hand.
+
+
 ## 🔵 Fase 4: Versión Mejorada (Post-MVP / Futuro)
 
 *Ideas para cuando el sistema base esté funcionando al 100%.*
 
+* [ ] **Conexión entre SearchView y BooksView:** Lograr que al hacer doble clic sobre la fila de un libro en el Treeview de Búsqueda Global lleve al usuario a la vista de libros mostrando los datos del libro seleccionado. 
 * [ ] **Optimización de Consultas (SQL JOINs):** Unificar las llamadas en `get_book_by_id` para traer autores y géneros en una sola sentencia.
 * [ ] **Múltiples Autores:** Rediseñar el modelo y la vista para permitir N autores por libro.
 * [ ] **Gestión de Autores:** Investigar y normalizar el manejo de autores con un solo nombre (ej. Osho, Anónimo).

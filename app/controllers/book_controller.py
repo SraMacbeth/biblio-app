@@ -288,19 +288,14 @@ def update_copy(book_id, copy_id, status_loan, unavailable_reason):
     else:
         return {"estado": "ok", "mensaje": message}
 
-# def get_all_inventory():
-    # """
-    # Devuelve una lista con todos los libros del inventario.
-    # No recibe parámetros
-    # """
-    # success, data = Book.get_all_books()
+def get_all_inventory():
+    """
+    Devuelve una lista con todos los libros del inventario.
+    No recibe parámetros
+    """
+    success, message, data = Book.get_all_books()
 
-    # if not success:
-        # return {"estado": "error"}
-    # else:
-        # list_book = []
-        # for i in data:
-            # i = list(i)
-            # list_book.append(i)
-
-        # return {"estado": "ok", "inventario": list_book}
+    if not success:
+        return {"estado": "error", "mensaje": message}
+    else:
+        return {"estado": "ok", "mensaje": message, "inventario": data}

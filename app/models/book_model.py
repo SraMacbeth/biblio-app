@@ -460,9 +460,9 @@ class Book():
             return False, str(e)
 
     @classmethod
-    def get_all_books():
+    def get_all_books(cls):
         """
-        Devuelve todos los libros registrado en la base de datos.
+        Devuelve todos los libros registrados en la base de datos.
         No recibe parámetros.
         """
 
@@ -472,33 +472,20 @@ class Book():
                 cursor = connection.cursor()
 
                 cursor.execute(
-                    "SELECT book_id, isbn, title, publisher, genre_id, user_id, status FROM book")
+                    "SELECT book_id, isbn, title, publisher, status FROM book")
 
                 rows = cursor.fetchall()
 
                 rows_complete = []
 
+                if rows == None:
+                    return False, "No hay libros en el inventario", []
+                
                 if rows is not None:
 
                     for row in rows:
 
                         row = list(row)
-
-                        # Extraer ID del género del libro
-                        cursor.execute(
-                            "SELECT genre_id FROM book WHERE book_id = ?;", (row[0], ))
-
-                        genre_id = cursor.fetchone()
-
-                        # Obtener nombre del género
-                        cursor.execute(
-                            "SELECT name FROM genre WHERE genre_id = ?;", (genre_id[0],))
-
-                        genre_name = cursor.fetchone()
-
-                        row[4] = genre_name[0]
-
-                        rows_complete.append(row)
 
                         # Obtener ID del autor
                         cursor.execute(
@@ -514,8 +501,6 @@ class Book():
 
                         author = author_name[0]
 
-                        print(author)
-
                         author_complete = ""
 
                         for i in author:
@@ -525,9 +510,7 @@ class Book():
 
                         rows_complete.append(row)
 
-                        print(rows_complete)
-
-                return True, rows
+                return True, "Inventario cargado con éxito", rows_complete
 
         except sqlite3.Error as e:
             return False, str(e)

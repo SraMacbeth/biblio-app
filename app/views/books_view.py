@@ -95,9 +95,7 @@ class BooksView(BaseView):
                 status,
                 total_copies,
                 available_copies]
-                
-            print(treeview_values)
-
+        
             self.search_result_container.result_treeview.insert(
                 parent='', index='end', values=treeview_values)
 
@@ -106,14 +104,12 @@ class BooksView(BaseView):
 
             self.search_result_container.result_treeview.grid(
                 row=1, column=0, sticky="nsew")
-            self.search_result_container.xscrollbar_treeview.grid(
-                row=2, column=0, sticky="ew")
 
             self.action_button_container.grid()
             self.edit_button.config(state=NORMAL)
 
         else:
-            self.clean_entries(self.search_bar.search_bar_entry)
+            self.search_bar.search_bar_entry.delete(0, END)
             self.search_result_container.result_label.config(
                 text=result["mensaje"], font=(
                     None, 10, "bold"), fg="red", anchor="w")

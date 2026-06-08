@@ -51,14 +51,10 @@ class CopiesForm(Toplevel):
         self.copies_label = Label(container, text="Detalle de copias:")
         self.copies_label.grid(row=1, column=0, pady=10, sticky="w")
         
-        self.xscrollbar_treeview = ttk.Scrollbar(container, orient=HORIZONTAL)
-
         self.treeview_columns = ("ID", "Código", "Estado", "Observaciones", "Acción")
 
-        self.copies_treeview = ttk.Treeview(container, columns=self.treeview_columns, show='headings', height=1, xscrollcommand=self.xscrollbar_treeview.set)
+        self.copies_treeview = ttk.Treeview(container, columns=self.treeview_columns, show='headings', height=1)
         
-        self.xscrollbar_treeview.config(command=self.copies_treeview.xview)
-
         self.copies_treeview.bind('<Button-1>', self.block_resizing, add='+')
 
         self.copies_treeview.grid(row=2, column=0, columnspan=2, sticky="w")

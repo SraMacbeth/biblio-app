@@ -8,7 +8,7 @@ class SearchResultContainer(Frame):
     def __init__(self, parent):
         super().__init__(parent, width=700, height=100)
 
-        self.grid_propagate(False)
+        self.grid_propagate(True)
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
@@ -17,8 +17,6 @@ class SearchResultContainer(Frame):
         self.text_search_label = Label(self, text="")
 
         self.result_label = Label(self, text="")
-
-        self.xscrollbar_treeview = ttk.Scrollbar(self, orient=HORIZONTAL)
 
         self.treeview_columns = (
             "ID",
@@ -34,18 +32,13 @@ class SearchResultContainer(Frame):
             self,
             columns=self.treeview_columns,
             show='headings',
-            height=1,
-            xscrollcommand=self.xscrollbar_treeview.set)
-
-        self.xscrollbar_treeview.config(command=self.result_treeview.xview)
-
+            height=1)
+        
         self.result_treeview.bind('<Button-1>', self.block_resizing, add='+')
 
         self.result_treeview.grid(row=0, column=0, sticky="nsew")
         self.result_treeview.grid_remove()
-        self.xscrollbar_treeview.grid(row=1, column=0, sticky="ew")
-        self.xscrollbar_treeview.grid_remove()
-
+        
         self.result_treeview.heading("ID", text="ID")
         self.result_treeview.column(
             "ID",
@@ -89,8 +82,8 @@ class SearchResultContainer(Frame):
         self.result_treeview.heading("Status", text="Status")
         self.result_treeview.column(
             "Status",
-            width=50,
-            minwidth=50,
+            width=80,
+            minwidth=80,
             stretch=False,
             anchor="center")
 

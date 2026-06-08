@@ -463,37 +463,28 @@ class TestBookController(unittest.TestCase):
         self.assertEqual(resultado["estado"], "ok", f"El controlador falló: {resultado.get('mensaje')}")
         self.assertIn("Copia actualizada correctamente.", resultado["mensaje"])
 
-    # def test_traer_todo_el_inventario(self):
-        # """
-        # Verifica que la función de búsqueda global devuelve todos los libros cargados en la base de datos en el formato correcto para ser mostrados en la vista.
-        # """
+    def test_traer_todo_el_inventario(self):
+        """
+        Verifica que la función de búsqueda global devuelve todos los libros cargados en la base de datos en el formato correcto para ser mostrados en la vista.
+        """
 
-        # # PREPARACIÓN:
-        # # Insertar un libro
-        # datos_primer_libro = [
-            # "Rayuela", [
-                # ("Julio", "Cortázar")], "Ficción Contemporánea", "978-1", "Alfaguara", 1]
-        # book_controller.add_book(*datos_primer_libro)
+        # PREPARACIÓN:
+        # Insertar un libro
+        datos_primer_libro = [
+            "Rayuela", [
+                ("Julio", "Cortázar")], "Ficción Contemporánea", "978-1", "Alfaguara", 1]
+        book_controller.add_book(*datos_primer_libro)
 
-        # # Insertar un segundo libro
-        # datos_segundo_libro = ["Las venas abiertas de América Latina", [
-            # ("Eduardo", "Galeano")], "Ensayo", "923-4", "Siglo XXI Editores", 1]
-        # book_controller.add_book(*datos_segundo_libro)
+        # Insertar un segundo libro
+        datos_segundo_libro = ["Las venas abiertas de América Latina", [
+            ("Eduardo", "Galeano")], "Ensayo", "923-4", "Siglo XXI Editores", 1]
+        book_controller.add_book(*datos_segundo_libro)
 
-        # # Act
-        # exito = book_controller.get_all_inventory()
+        # Act
+        success = book_controller.get_all_inventory()
 
-        # # Assert
-        # self.assertEqual(exito['estado'], "ok", "La operación falló")
-        # self.assertEqual(
-            # len(exito['inventario']), 2, "El tamaño de la lista de libros no es el esperado")
-        # self.assertEqual(exito['inventario'][0],
-                         # [1,
-                          # "Rayuela",
-                          # "Julio Cortázar",
-                          # "Alfaguara",
-                          # "Ficción Contemporánea",
-                          # "Activo",
-                          # 1,
-                          # 1],
-                         # "Las datos no coinciden")
+        # Assert
+        self.assertEqual(success['estado'], "ok", f"La operación falló con el mensaje {success['mensaje']}")
+        self.assertEqual(
+            len(success['inventario']), 2, "El tamaño de la lista de libros no es el esperado")
+        
