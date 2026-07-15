@@ -61,7 +61,7 @@ class BooksView(BaseView):
         self.search_result_container.text_search_label.config(
             text=f"Resultado para la búsqueda: {book_id}")
 
-        self.search_result_container.text_search_label .grid(
+        self.search_result_container.text_search_label.grid(
             row=0, column=0, pady=10, sticky="w")
 
         search_entity = self.search_bar.get_search_entity()
