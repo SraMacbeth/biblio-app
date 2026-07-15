@@ -53,7 +53,6 @@
 * [ ] Reemplazar la constante `CURRENT_USER_ID = 1` por el ID capturado dinámicamente desde la vista Home hacia las demás capas.
 * [ ] Implementar lógica de código de acceso único (OTP) para la validación de email en `resetPasswordScreen`.
 
-
 ## 🟢 Fase 3: Feedback Visual y UX (Pulido del MVP)
 
 *Mejoras en la experiencia de usuario sin añadir complejidad en la base de datos.*
@@ -62,7 +61,6 @@
 * [ ] Configurar Tags de colores en `books_view.py`.
 * [ ] Lógica: Fila **Rojo suave** para Stock = 0.
 * [ ] Lógica: Fila **Gris** para libros "Inactivos".
-
 
 * [ ] **Manejo de Errores en UI:** Asegurar que todos los mensajes de error del controlador se muestren en `messagebox` de Tkinter.
 
@@ -74,20 +72,40 @@
 
 * [ ] Limpiar contenido de ventanas entre transiciones en el Login y entre las vistas de la Home.
 
-* [ ] En books_view cambiar el botón de editar por una columna llamada "Acción" con texto clickable y cursor hand.
-
+* [ ] En books_view, cambiar el botón de editar por una columna llamada "Acción" con texto clickable y cursor hand.
 
 ## 🔵 Fase 4: Versión Mejorada (Post-MVP / Futuro)
 
 *Ideas para cuando el sistema base esté funcionando al 100%.*
 
-* [ ] **Conexión entre SearchView y BooksView:** Lograr que al hacer doble clic sobre la fila de un libro en el Treeview de Búsqueda Global lleve al usuario a la vista de libros mostrando los datos del libro seleccionado. 
-* [ ] **Optimización de Consultas (SQL JOINs):** Unificar las llamadas en `get_book_by_id` para traer autores y géneros en una sola sentencia.
-* [ ] **Múltiples Autores:** Rediseñar el modelo y la vista para permitir N autores por libro.
-* [ ] **Gestión de Autores:** Investigar y normalizar el manejo de autores con un solo nombre (ej. Osho, Anónimo).
-📋 Backlog (Versiones Futuras / Fase 3)
-* [X] **Gestión Individual de Copias:** Botón de edición por fila en el formulario de libro para cambiar estados puntuales (Dañado, Extraviado, etc.).
+* [ ] **Gestión de resultados en SearchView:** Implementar mensaje que indique que no hay libros cargados en el catálogo en lugar de mostrar la tabla de resultados vacía. El mensaje debe incluir un link que redirige a BooksView para que el usuatio realice la carge de libros.
+
 * [ ] **Buscador Avanzado:** Implementar un buscador dinámico con filtros avanzados (por autor, por género, título o ISBN, con búsqueda predictiva). Implementar el "Doble clic para editar" (paso de parámetros entre ventanas).
+
+* [ ] **Conexión entre SearchView y BooksView:** Lograr que al hacer doble clic sobre la fila de un libro en el Treeview de Búsqueda Global lleve al usuario a la vista de libros mostrando los datos del libro seleccionado. 
+
+* [ ] **Optimización de Consultas (SQL JOINs):** Unificar las llamadas en `get_book_by_id` para traer autores y géneros en una sola sentencia.
+
+* [ ] **Múltiples Autores:** Rediseñar el modelo y la vista para permitir N autores por libro.
+
+* [ ] **Gestión de Autores:** Investigar y normalizar el manejo de autores con un solo nombre (ej. Osho, Anónimo).
+
 * [ ] **Validación de ISBN:** Implementar Regex para asegurar el formato estándar de 13 dígitos.
+
 * [ ] **Carga de Imágenes:** Permitir vincular una ruta de imagen para la portada del libro.
 
+* [X] **Gestión Individual de Copias:** Botón de edición por fila en el formulario de libro para cambiar estados puntuales (Dañado, Extraviado, etc.).
+
+* [ ] **Refactorización de copies_form:** 
+* [ ] Reemplazar la ventana Toplevel emergente por un diseño de filas 
+expandibles dentro de la misma vista.
+* [ ] Al hacer click en una fila de copia, desplegar un panel integrado 
+justo debajo con sus campos editables. Dicho panel permanecerá visible 
+para permitir la previsualización de cambios múltiples en simúltáneo. 
+Las filas no seleccionadas mantendrán su estado de solo lectura  
+* [ ] Modificar el botón "Actualizar copias" para que ejecute una 
+transacción por lote (ediciones + inserciones). Tras el éxito, no cerrar 
+la vista: recargar el contenedor dinámicamente para mostrar el nuevo 
+estado del inventario.
+
+* [ ] **Refactorización de la arquitectura de la interfaz aplicando herencia limpia:** Unificar los componentes comunes  (búsqueda, botones de acción, layouts repetitivos) en BaseView y dejar que BooksView y MembersView sólo implementen sus estructuras de datos particulares.
