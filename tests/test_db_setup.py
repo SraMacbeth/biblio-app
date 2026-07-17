@@ -27,7 +27,7 @@ def create_tables():
     cursor.execute(
         "CREATE TABLE IF NOT EXISTS author (author_id INTEGER PRIMARY KEY, first_name TEXT NOT NULL, last_name TEXT NOT NULL);")
 
-    cursor.execute("CREATE TABLE IF NOT EXISTS member (member_id INTEGER PRIMARY KEY, first_name TEXT NOT NULL, last_name TEXT NOT NULL, address TEXT NOT NULL, email TEXT NOT NULL, phone_number TEXT NOT NULL);")
+    cursor.execute("CREATE TABLE IF NOT EXISTS member (member_id INTEGER PRIMARY KEY, first_name TEXT NOT NULL, last_name TEXT NOT NULL, dni INTEGER NOT NULL, address TEXT NOT NULL, email TEXT NOT NULL, phone_number TEXT NOT NULL, user_id INTEGER NOT NULL, FOREIGN KEY (user_id) REFERENCES user(user_id));")
 
     cursor.execute(
         "CREATE TABLE IF NOT EXISTS genre (genre_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE NOT NULL);")
